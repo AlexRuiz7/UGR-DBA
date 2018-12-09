@@ -5,6 +5,7 @@
  */
 package transformers;
 
+import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 
@@ -12,24 +13,36 @@ import es.upv.dsic.gti_ia.core.AgentID;
  *
  * @author Germán
  */
-public class Burocrata extends Agente{
-
-    String conversationID;
-    AgentID controlador;
+public class Burocrata extends Agente {
     
-    Burocrata(AgentID aID, String nombreServidor) throws Exception {
-        super(aID);  
-        this.controlador = new AgentID(nombreServidor);
-        conversationID = "";
-    }
-    
-    
-    public void execute(){
+    private String conversationID_controlador ;
+    private String[] conversationID_vehiculos ;
+    private String[] estados_vehiculos ;
+    private int vehiculos_activos ;
+    private int tamanio_mapa ;
+    private int[] mapa ;
         
+    private void suscribe(){}
+        
+    private void cancel(){}
+        
+    private void getTraza(){}
+        
+    private void getTrazaAnterior(){}
+        
+    private void dirigeteA(Casilla c) {}
+        
+        
+    public Burocrata(AgentID aID) throws Exception {
+        super(aID);
+        vehiculos_activos = 4 ;
+                
+        System.out.println("\n Agente "+this.getAid().getLocalName()+" creado");
     }
     
     
-    
-    
-    
+    @Override
+    public void execute() {
+        /* VOID - to be OVERRIDE */
+    }
 }
