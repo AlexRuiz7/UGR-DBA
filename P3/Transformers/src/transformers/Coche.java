@@ -9,6 +9,6 @@ package transformers;
  *
  * @author Germán
  */
-public class Coche {
+public class Coche extends Vehiculo{
     
 }

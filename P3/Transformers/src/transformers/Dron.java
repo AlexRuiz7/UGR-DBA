@@ -9,6 +9,6 @@ package transformers;
  *
  * @author Germán
  */
-public class Dron {
+public class Dron extends Vehiculo{
     
 }
