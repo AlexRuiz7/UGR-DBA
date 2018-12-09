@@ -5,10 +5,31 @@
  */
 package transformers;
 
+import es.upv.dsic.gti_ia.core.ACLMessage;
+import es.upv.dsic.gti_ia.core.AgentID;
+
 /**
  *
  * @author Germán
  */
 public class Burocrata extends Agente{
+
+    String conversationID;
+    AgentID controlador;
+    
+    Burocrata(AgentID aID, String nombreServidor) throws Exception {
+        super(aID);  
+        this.controlador = new AgentID(nombreServidor);
+        conversationID = "";
+    }
+    
+    
+    public void execute(){
+        
+    }
+    
+    
+    
+    
     
 }

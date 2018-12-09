@@ -5,10 +5,16 @@
  */
 package transformers;
 
+import es.upv.dsic.gti_ia.core.AgentID;
+
 /**
  *
  * @author Germán
  */
 public class Vehiculo extends Agente{
+    
+    public Vehiculo(AgentID aID) throws Exception {
+        super(aID);
+    }
     
 }
