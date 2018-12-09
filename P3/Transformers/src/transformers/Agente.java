@@ -1,4 +1,3 @@
-package transformers;
 
 
 import com.eclipsesource.json.Json;
@@ -19,7 +18,7 @@ import es.upv.dsic.gti_ia.core.SingleAgent;
  */
 public class Agente extends SingleAgent {
     //Evita creación de objetos Json durante la ejecución del agente 
-    protected JsonObject mensaje;
+    protected JsonObject mensajeContenido;
     
     //Evita crear ACLMessage durante la ejecución del agente, reutiliza objeto. 
     protected ACLMessage mensajeSalida;
@@ -39,7 +38,7 @@ public class Agente extends SingleAgent {
     public Agente(AgentID aID) throws Exception {
         super(aID);
         
-        mensaje = new JsonObject();              
+        mensajeContenido = new JsonObject();              
         mensajeSalida       = new ACLMessage();
         mensajeEntrada    = new ACLMessage();
         
@@ -80,7 +79,7 @@ public class Agente extends SingleAgent {
             return false;
         }
         
-        mensaje = Json.parse(mensajeEntrada.getContent()).asObject();
+        mensajeContenido = Json.parse(mensajeEntrada.getContent()).asObject();
         //mensajeContenido = mensajeEntrada.getContent();
         return true;
     }
@@ -102,14 +101,18 @@ public class Agente extends SingleAgent {
     protected void enviarMensaje(
             AgentID destinatario, 
             int performativa,
-            String id){
+            String id,
+            String conversationID,
+            String reply){
         mensajeSalida = new ACLMessage();              
         mensajeSalida.setSender(this.getAid());                 // Emisor
         mensajeSalida.setReceiver(destinatario);                // Receptor
-        mensajeSalida.setContent(mensaje.toString());  // Contenido
+        mensajeSalida.setContent(mensajeContenido.toString());  // Contenido
         mensajeSalida.setConversationId(id);
-//        mensajeSalida.setInReplyTo(replay_with);
+//        mensajeSalida.setInReplyTo(reply);
         mensajeSalida.setPerformative(performativa);
+        mensajeSalida.setConversationId(conversationID);
+        
         this.send(mensajeSalida);                      // Enviando el mensaje.
         
 /*        System.out.println("["
