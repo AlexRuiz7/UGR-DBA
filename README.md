@@ -15,6 +15,6 @@ Las prácticas han sido realizadas por:
 
   | Nombre del colaborador        |   Github   |
   | ----------------------------- | ---------- |
-  | Juan Germán ... *(completar)* | @juang3    |
+  | Juan Germán Gómez Gómez       | @juang3    |
   | Alejandro Ruiz Becerra        | @AlexRuiz7 |
-  | Álvaro ... *(completar)*      | @alopezj97 |
+  | Álvaro López Jiménez          | @alopezj97 |
