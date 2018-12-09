@@ -9,6 +9,6 @@ package transformers;
  *
  * @author Germán
  */
-public class Burocrata {
+public class Burocrata extends Agente{
     
 }
