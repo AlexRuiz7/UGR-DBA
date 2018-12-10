@@ -1,6 +1,7 @@
 package transformers;
 
 
+
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.ACLMessage;
@@ -155,8 +156,9 @@ public class Agente extends SingleAgent {
         mensajeSalida.setReceiver(destinatario);       // Receptor
         mensajeSalida.setContent(mensaje.toString());  // Contenido
         mensajeSalida.setConversationId(id);
-        mensajeSalida.setInReplyTo(replayWith);
+        mensajeSalida.setInReplyTo(replayWith); 
         mensajeSalida.setPerformative(performativa);
+        
         this.send(mensajeSalida);                      // Enviando el mensaje.
         
         if(informa){

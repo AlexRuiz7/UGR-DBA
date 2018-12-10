@@ -21,16 +21,24 @@ import javax.imageio.ImageIO;
 
 /**
  *
- * @author Germán
+ * @author Germán, Alvaro
  */
 public class Burocrata extends Agente{
 
-    String conversationID;
+    private String conversationID;
+//    private String conversationID_controlador ;
     AgentID controlador;
     String nombreMapa;
     String equipo;
+    int agentes_activos;
     BufferedImage mapa;
     String rutaFichero;
+
+    
+//    private String[] conversationID_vehiculos ;
+    private int[] estados_vehiculos ;
+    private int vehiculos_activos ;
+    private int tamanio_mapa ;
     
     /**
      * @author: Germán
@@ -52,6 +60,7 @@ public class Burocrata extends Agente{
          * no se conoce la configuración de equipo.
          */
         equipo = "0000";
+        agentes_activos = 0;
         System.out.println("Equipo " + equipo);
         
         /**
@@ -72,7 +81,6 @@ public class Burocrata extends Agente{
      */
     public Burocrata(AgentID aID, String nombreServidor, String nombreMapa)
         throws Exception{
-            
             super(aID, false);
             inicializar(nombreServidor, nombreMapa);
     }
@@ -95,7 +103,6 @@ public class Burocrata extends Agente{
     }
     
     
-    @Override
     /**
      * @author: Germán
      * Método que ejecutará el agente desde que despierta.
@@ -249,6 +256,7 @@ public class Burocrata extends Agente{
         }
     };
     
+
     /**
      * @author: Germán
      * Método que muestra el contenido del Mapa, en dististos formatos.
@@ -367,4 +375,9 @@ public class Burocrata extends Agente{
             System.out.println("");
         }
     };
+    
+    
+    private void getTrazaAnterior(){}
+        
+    private void dirigeteA(Casilla c){}
 }
