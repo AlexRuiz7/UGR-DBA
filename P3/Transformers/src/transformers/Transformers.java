@@ -31,7 +31,8 @@ public class Transformers {
             System.out.println("Conectado a isg2.ugr.es");
             
             // Crear agente
-            Burocrata optimusPrime = new Burocrata(nombre, nombreServidor, nombreMapa);
+            boolean informa = true;
+            Burocrata optimusPrime = new Burocrata(nombre, nombreServidor, nombreMapa, informa);
             
             // Despiertas agente.
             optimusPrime.start();
