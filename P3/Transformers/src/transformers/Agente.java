@@ -40,7 +40,7 @@ public class Agente extends SingleAgent {
      *  mensajeEntrada   Almacena el mensaje se entrada.
      *  mensajeSalida    Almacena el mensaje de salida.
      */
-    public void inicializador(AgentID aID, boolean informa) throws Exception {
+    public void inicializar(AgentID aID, boolean informa) throws Exception {
         
         mensaje = new JsonObject();              
         mensajeSalida     = new ACLMessage();
@@ -60,7 +60,7 @@ public class Agente extends SingleAgent {
      */
     public Agente(AgentID aID) throws Exception{
         super(aID);
-        inicializador(aID, false);
+        inicializar(aID, false);
     }
     
     /**
@@ -72,7 +72,18 @@ public class Agente extends SingleAgent {
      */
     public Agente(AgentID aID, boolean informa) throws Exception{
         super(aID);
-        inicializador(aID, informa);
+        inicializar(aID, informa);
+    }
+    
+    
+    /**
+     * @author Germán
+     * Método vacio que indica la necesidad de implementar las acciones
+     * que debe realizar el agente en las clases hijas.
+     */
+    @Override
+    public void execute() {
+        /* VOID - to be OVERRIDE */
     }
     
     
