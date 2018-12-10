@@ -41,7 +41,7 @@ public class Agente extends SingleAgent {
      *  mensajeSalida    Almacena el mensaje de salida.
      */
     public void inicializar(AgentID aID, boolean informa) throws Exception {
-        
+//        System.out.println("\n INICIALIZACION DEL AGENTE");
         mensaje = new JsonObject();              
         mensajeSalida     = new ACLMessage();
         mensajeEntrada    = new ACLMessage();
@@ -55,7 +55,7 @@ public class Agente extends SingleAgent {
      * @author: Germán
      * Constructor donde no se explicita querer ser informado 
      * de toda la comunicación del agente con su entorno.
-     * @param aID
+     * @param aID:     Identificador del agente.
      * @throws Exception 
      */
     public Agente(AgentID aID) throws Exception{
@@ -67,7 +67,8 @@ public class Agente extends SingleAgent {
      * @author: Germán
      * Constructor donde se indica explicitamente el deseo de ser informado 
      * de toda la comunicación de este agente.
-     * @param aID
+     * @param aID:     Identificador del agente.
+     * @param informa: Con valor TRUE informa de toda comunicación.
      * @throws Exception 
      */
     public Agente(AgentID aID, boolean informa) throws Exception{
