@@ -23,16 +23,18 @@ public class Transformers {
          try{
             AgentID nombre = new AgentID("Optimus_Prime");
             AgentID destinatario = new AgentID("Explorador1");
+            String nombreServidor = "Girtab";
+            String nombreMapa = "map1";
             
             // Creando conexión con el servidor
-            AgentsConnection.connect("isg2.ugr.es", 6000, "Girtab", "Geminis", "France", false);
+            AgentsConnection.connect("isg2.ugr.es", 6000, nombreServidor, "Geminis", "France", false);
             System.out.println("Conectado a isg2.ugr.es");
             
             // Crear agente
-            Burocrata optimusPrime = new Burocrata(nombre);
+            Burocrata optimusPrime = new Burocrata(nombre, nombreServidor, nombreMapa);
             
             // Despiertas agente.
-            //optimusPrime.start();
+            optimusPrime.start();
         }
         catch(Exception ex) {
             System.out.println("Excepción " + ex.toString());
