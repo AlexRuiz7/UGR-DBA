@@ -216,7 +216,7 @@ public class Burocrata extends Agente{
             String nombreFichero =nombreMapa + "__" 
                     + equipo + " "
                     + fecha + "_"
-                    + conversationID;
+                    + mensajeEntrada.getConversationId();
             
             if(exito){
                 /* Recibimos la respuesta del servidor */
