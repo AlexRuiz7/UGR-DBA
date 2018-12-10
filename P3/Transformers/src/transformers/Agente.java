@@ -14,7 +14,6 @@ import es.upv.dsic.gti_ia.core.SingleAgent;
  */
 
 /**
- *
  * @author Germán
  */
 public class Agente extends SingleAgent {
@@ -29,9 +28,11 @@ public class Agente extends SingleAgent {
     boolean informa;
         
     /**
-     * 
+     * Método que inicializa los atributos 
      * @author Germán
      * @param aID        Identificador del agente
+     * @param informa    Muestra información relevante de cada mensaje
+     *                   recibido y enviado
      * @throws Exception
      * 
      * @atributos
@@ -39,8 +40,7 @@ public class Agente extends SingleAgent {
      *  mensajeEntrada   Almacena el mensaje se entrada.
      *  mensajeSalida    Almacena el mensaje de salida.
      */
-    public Agente(AgentID aID, boolean informa) throws Exception {
-        super(aID);
+    public void inicializador(AgentID aID, boolean informa) throws Exception {
         
         mensaje = new JsonObject();              
         mensajeSalida     = new ACLMessage();
@@ -51,21 +51,40 @@ public class Agente extends SingleAgent {
         System.out.println("\n Agente "+this.getAid().getLocalName()+" creado");
     }
     
+    /**
+     * @author: Germán
+     * Constructor donde no se explicita querer ser informado 
+     * de toda la comunicación del agente con su entorno.
+     * @param aID
+     * @throws Exception 
+     */
+    public Agente(AgentID aID) throws Exception{
+        super(aID);
+        inicializador(aID, false);
+    }
     
-    @Override
-    public void execute() {
-        /* VOID - to be OVERRIDE */
+    /**
+     * @author: Germán
+     * Constructor donde se indica explicitamente el deseo de ser informado 
+     * de toda la comunicación de este agente.
+     * @param aID
+     * @throws Exception 
+     */
+    public Agente(AgentID aID, boolean informa) throws Exception{
+        super(aID);
+        inicializador(aID, informa);
     }
     
     
     /**
+     * @author: Germán
      * recibirMensaje encapsula la rutina de recibir y dar formato al contenido
      * guardándolo en la variable mensajeContenido.
-     * @author: Germán
      * @return Devuelve éxito o no si se ha realizado correctamente 
      * 
      * @Nota: Útil para mostrar información relevante en el seguimiento 
      * de la comunicación entre los agentes.
+     * Solo visible si se ha indicado en el constructor. 
      */
     protected boolean recibirMensaje(){
         try{
@@ -102,11 +121,11 @@ public class Agente extends SingleAgent {
     
     
     /**
+     * @author: Germán
      * enviarMensaje encapsula la rutina de dar formato a la variable 
      * mensajeSalida con el contenido de "mensajeContenido",
      * añadir el remitente, el destinatario, la performativa, ConversationID
      * 
-     * @author: Germán
      * @param destinatario: Identificador del agente destinatario
      * @param performativa: Verbo de la acción
      * @param id:           Identificador de la conversación (InversationID)
@@ -143,8 +162,12 @@ public class Agente extends SingleAgent {
                 + mensajeSalida.getInReplyTo());
         }
     }
+    
     /**
-     * Todas las conversaciones no tienen hilo conductor,
+     * @author: Germán
+     * Todas las conversaciones no tienen hilo conductor y para evitar 
+     * añadir un campo que no es de interés en algunos momentos he preferido 
+     * sobrecargar el método.
      * @param destinatario: Identificador del agente destinatario
      * @param performativa: Verbo de la acción
      * @param id:           Identificador de la conversación (InversationID)
