@@ -32,8 +32,18 @@ public class Burocrata extends Agente{
     BufferedImage mapa;
     String rutaFichero;
     
-    Burocrata(AgentID aID, String nombreServidor, String nombreMapa) throws Exception {
-        super(aID, true);  
+    /**
+     * @author: Germán
+     * Método inicializador de los atributos del burócrata. 
+     * @param aID:            Identificador del agente
+     * @param nombreServidor: Nombre del controlador 
+     *                         con el que se comunicará el agente 
+     * @param nombreMapa:     Nombre del mapa a explorar
+     * @throws Exception 
+     */
+    private void inicializar(String nombreServidor, String nombreMapa) 
+            throws Exception {
+//       System.out.println("\n INICIALIZACION DEL BUROCRATA");
         this.controlador = new AgentID(nombreServidor);
         conversationID = "";
         
@@ -50,21 +60,77 @@ public class Burocrata extends Agente{
         this.nombreMapa = nombreMapa;
         this.rutaFichero = "";
     }
+    /**
+     * @author: Germán
+     * Constructor donde no se explicita querer ser informado 
+     * de toda la comunicación del agente.
+     * @param aID:            Identificador del agente
+     * @param nombreServidor: Nombre del controlador 
+     *                         con el que se comunicará el agente 
+     * @param nombreMapa:     Nombre del mapa a explorar
+     * @throws Exception 
+     */
+    public Burocrata(AgentID aID, String nombreServidor, String nombreMapa)
+        throws Exception{
+            
+            super(aID, false);
+            inicializar(nombreServidor, nombreMapa);
+    }
+    /**
+     * @author: Germán
+     * Constructor donde se indica explicitamente el deseo de ser informado 
+     * de toda la comunicación de este agente.
+     * @param aID:            Identificador del agente
+     * @param nombreServidor: Nombre del controlador 
+     *                         con el que se comunicará el agente 
+     * @param nombreMapa:     Nombre del mapa a explorar
+     * @param informa:        Con valor TRUE informa de toda comunicación.
+     * @throws Exception 
+     */
+    public Burocrata(AgentID aID, String nombreServidor,
+        String nombreMapa, boolean informa)
+        throws Exception{
+           super(aID, informa);
+           inicializar(nombreServidor, nombreMapa);
+    }
     
     
     @Override
+    /**
+     * @author: Germán
+     * Método que ejecutará el agente desde que despierta.
+     * 
+     * @Nota 9-12-2018: Probando los métodos subscribe, cancel y obtener mapa
+     */
     public void execute(){
         /**
-         * Inicialmente se manda un cancel para cerrar la sesión anterior.
-         * y se procesa la traza para obtener las dimensiones del mapa
+         * Inicialmente se pretendo mandar un mensaje de cancel para 
+         * cerrar la sesión anterior y empezar la nueva sesión.
+         * Hay dos situaciones posibles al envial el cancel.
+         *  AGREE:
+         *   Hubo una sesión anterior que no se cerró correctamente.
+         *  
+         *  NOT_UNDERSTOOD:
+         *   Hubo una sesión anterior que se cerró correctamente o
+         *   es la primera sesión en este mapa.
+         * 
+         * Se puede aprovechar dicha situación para obtener las dimensiones del 
+         * mapa a partir de la traza.
+         *  Para ello se cierra la sesión anterior y se toman las dimensiones
+         *  o se inicia una subscripción y posteriormente un cancel.
+         * 
          */
-//        System.out.println(" Llamando a CANCEL ");
         obtenerMapa();
         
         ToStringMapa("hex");
         subscribe(nombreMapa);
     }
     
+    /**
+     * @author: Germán
+     * Método que encapsula la rutina de cancelar la suscripción al mapa.
+     * @return 
+     */
     public boolean cancel(){
         // Creando mensaje vacio
         mensaje = new JsonObject();
@@ -84,7 +150,7 @@ public class Burocrata extends Agente{
                 break;
                 
             case ACLMessage.NOT_UNDERSTOOD:
-                System.out.println(" NO entiendo lo que quieres. ");
+                System.out.println(" No entiendo lo que quieres. ");
                 System.out.println(" Detalles: " + mensaje.get("details"));
                 break;
                 
@@ -98,7 +164,12 @@ public class Burocrata extends Agente{
         return resultado;
         
     }
-    
+    /**
+     * Método que encapsula la rutina de suscribirse a un mapa
+     * @author: Germán
+     * Método que encapsula la rutina de suscribirse al mundo
+     * @param nombreMapa: Indica el mapa al que se quiere subscribirse
+     */
     private void subscribe(String nombreMapa){
         mensaje = new JsonObject();
         mensaje.add("world", nombreMapa);
@@ -125,7 +196,8 @@ public class Burocrata extends Agente{
         
     }
     /**
-     * PRE: La traza debe haberse recibido.
+     * @author: Germán
+     * @PRE: La traza debe haberse recibido.
      * El método getTraza crea una imagen con la traza obtenida
      * @param exito: Indica el modo de tratamiento de la traza.
      *   TRUE --> Queremos la traza
@@ -177,7 +249,8 @@ public class Burocrata extends Agente{
         }
     };
     
-        /**
+    /**
+     * @author: Germán
      * Método que muestra el contenido del Mapa, en dististos formatos.
      * con enteros, hexadecimal o con caracteres
      * @param nombre_archivo: Ubicación del archivo a decodificar y mostrar
@@ -205,10 +278,13 @@ public class Burocrata extends Agente{
         return image;
     }
     
-    public static void MapaToString(String nombre_archivo) throws IOException{
-        getMapa(nombre_archivo, "string");
-    }
-    
+    /**
+     * @author: Germán
+     * Método auxiliar dar formato a un dato entero.
+     * @param hex:   Valor del entero
+     * @param tipo:  Tipo de representación elegida 
+     * @return 
+     */
     public static String conversor(int hex, String tipo){
         String dato;
         
@@ -255,6 +331,14 @@ public class Burocrata extends Agente{
         return dato;
     }
     
+    /**
+     * @author: Germán
+     * Método que encapsula la tarea de obtener la fecha y hora actual
+     *  (solo usado para crear el nombre del archivo png que contendrá la traza)
+     * @return: Devuelve la fecha y la hora en un String
+     * @POST: Los caracteres '/' en el sistema Ubuntu 16.04 los interpreta como
+     *  ruta, por ello se ha usado '-' como separador de fecha  
+     */
     public String Fecha(){
         Calendar c = Calendar.getInstance();
         int mes = c.get(Calendar.MONTH)+1;
@@ -267,6 +351,11 @@ public class Burocrata extends Agente{
         return fecha;
     }
     
+    /**
+     * @author: Germán
+     * Métod para mostrar el mapa que se tiene actualmente.
+     * @param tipo 
+     */
     private void ToStringMapa(String tipo){
         int hex; 
         for(int c=0; c<mapa.getWidth(); c++){
