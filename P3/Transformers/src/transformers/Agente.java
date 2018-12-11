@@ -15,7 +15,7 @@ import es.upv.dsic.gti_ia.core.SingleAgent;
  */
 
 /**
- * @author Germán
+ * @author Germán, Alvaro
  */
 public class Agente extends SingleAgent {
     //Evita creación de objetos Json durante la ejecución del agente 
@@ -26,7 +26,7 @@ public class Agente extends SingleAgent {
     protected ACLMessage mensajeEntrada;
     
     //Variable necesaria si se quiere visualizar el intercambio de mensajes.
-    boolean informa;
+    protected boolean informa;
         
     /**
      * Método que inicializa los atributos 
@@ -41,7 +41,7 @@ public class Agente extends SingleAgent {
      *  mensajeEntrada   Almacena el mensaje se entrada.
      *  mensajeSalida    Almacena el mensaje de salida.
      */
-    public void inicializar(AgentID aID, boolean informa) throws Exception {
+    private void inicializar(AgentID aID, boolean informa) throws Exception {
 //        System.out.println("\n INICIALIZACION DEL AGENTE");
         mensaje = new JsonObject();              
         mensajeSalida     = new ACLMessage();
@@ -141,7 +141,7 @@ public class Agente extends SingleAgent {
      * 
      * @param destinatario: Identificador del agente destinatario
      * @param performativa: Verbo de la acción
-     * @param id:           Identificador de la conversación (InversationID)
+     * @param conversationID: Identificador de la conversación 
      * @param replayWith:   Para distinguir el momento de la conversación.
      * 
      * @Nota: Útil para mostrar información relevante en el seguimiento 
@@ -150,12 +150,12 @@ public class Agente extends SingleAgent {
     protected void enviarMensaje(
             AgentID destinatario, 
             int performativa,
-            String id, String replayWith){
+            String conversationID, String replayWith){
         mensajeSalida = new ACLMessage();              
         mensajeSalida.setSender(this.getAid());        // Emisor
         mensajeSalida.setReceiver(destinatario);       // Receptor
         mensajeSalida.setContent(mensaje.toString());  // Contenido
-        mensajeSalida.setConversationId(id);
+        mensajeSalida.setConversationId(conversationID);
         mensajeSalida.setInReplyTo(replayWith); 
         mensajeSalida.setPerformative(performativa);
         
@@ -184,13 +184,13 @@ public class Agente extends SingleAgent {
      * sobrecargar el método.
      * @param destinatario: Identificador del agente destinatario
      * @param performativa: Verbo de la acción
-     * @param id:           Identificador de la conversación (InversationID)
+     * @param conversationID: Identificador de la conversación (ConversationID)
      */
     protected void enviarMensaje(
             AgentID destinatario,
             int performativa,
-            String id){
-        enviarMensaje(destinatario, performativa, id, "");
+            String conversationID){
+        enviarMensaje(destinatario, performativa, conversationID, "");
     }
     
 }
