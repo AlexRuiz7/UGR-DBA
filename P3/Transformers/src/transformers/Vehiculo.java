@@ -5,7 +5,10 @@
  */
 package transformers;
 
+import com.eclipsesource.json.JsonObject;
+import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
+import java.util.ArrayList;
 
 /**
  *
@@ -13,8 +16,67 @@ import es.upv.dsic.gti_ia.core.AgentID;
  */
 public class Vehiculo extends Agente{
     
-    public Vehiculo(AgentID aID, boolean informa) throws Exception {
+    protected int rango ;
+    protected int fuel ;
+    protected boolean fly ;
+    protected Casilla posicion ;
+    protected ArrayList<Integer> scanner ;
+    //protected String cID_servidor ;
+    //protected String cID_burocrata ;
+    protected AgentID id_servidor ;
+    protected AgentID id_burocrata ;
+    private String conversationID ;
+    
+    public Vehiculo(AgentID aID, boolean informa, AgentID id_servidor, AgentID id_burocrata) throws Exception {
         super(aID, informa);
+        this.id_servidor = id_servidor ;
+        this.id_burocrata = id_burocrata ;
+        conversationID = "";
+    }
+    
+    /**
+     * @author Alvaro
+     */
+    @Override
+    public void execute() {
+        /* VOID - to be OVERRIDE */
+        checkin();
+    }
+    
+    /**
+     * Método que encapsula la rutina de checkin
+     * @author: Alvaro
+     * Método que encapsula la rutina de hacer checkin al servidor/controlador
+     */
+    private boolean checkin() {
+        
+        enviarMensaje(id_servidor,ACLMessage.REQUEST, conversationID);
+        recibirMensaje();
+        
+        conversationID = mensajeEntrada.getConversationId();
+
+        boolean resultado = mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM;
+        int performativa = mensajeEntrada.getPerformativeInt();
+        
+        switch(performativa){
+            case ACLMessage.INFORM:
+                System.out.println(" Aceptada petición de CHECKIN ");
+                // aceptamos las capabilities y las almacenamos
+                break;
+                
+            case ACLMessage.NOT_UNDERSTOOD:
+                System.out.println(" No entiendo lo que quieres. ");
+                System.out.println(" Detalles: " + mensaje.get("details"));
+                break;
+                
+            default:
+                System.out.println(
+                        " Se ha recibido la performativa: " 
+                        + performativa);
+                break;    
+        }
+        
+        return resultado ;
     }
     
 }

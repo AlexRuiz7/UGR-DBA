@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Germán
+ * @author Germán, Alvaro
  */
 public class Transformers {
 
@@ -21,10 +21,12 @@ public class Transformers {
      */
     public static void main(String[] args) {
          try{
-            AgentID nombre = new AgentID("Optimus_Prime");
-            AgentID destinatario = new AgentID("Explorador1");
+            AgentID id_burocrata = new AgentID("Optimus_Prime");
+            //AgentID destinatario = new AgentID("Explorador1");
+            AgentID id_v = new AgentID("vehiculo");
             String nombreServidor = "Girtab";
             String nombreMapa = "map1";
+            AgentID id_servidor = new AgentID(nombreServidor);
             
             // Creando conexión con el servidor
             AgentsConnection.connect("isg2.ugr.es", 6000, nombreServidor, "Geminis", "France", false);
@@ -32,7 +34,8 @@ public class Transformers {
             
             // Crear agente
             boolean informa = true;
-            Burocrata optimusPrime = new Burocrata(nombre, nombreServidor, nombreMapa, informa);
+            Burocrata optimusPrime = new Burocrata(id_burocrata, nombreServidor, nombreMapa, informa);
+            Vehiculo v = new Vehiculo(id_v, informa, id_servidor, id_burocrata);
             
             // Despiertas agente.
             optimusPrime.start();
