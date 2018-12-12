@@ -21,19 +21,16 @@ public class Vehiculo extends Agente{
     protected boolean fly ;
     protected Casilla posicion ;
     protected ArrayList<Integer> scanner ;
-    protected String cID_servidor ;
-    protected String cID_burocrata ;
     protected AgentID id_servidor ;
     protected AgentID id_burocrata ;
-    //private String conversationID ;
+    protected String conversationID ;
     
     public Vehiculo(AgentID aID, AgentID id_servidor, AgentID id_burocrata, boolean informa) throws Exception {
         super(aID, informa);
         this.id_servidor = id_servidor ;
         this.id_burocrata = id_burocrata ;
-    //    conversationID = "";
-        cID_servidor = "";
-        cID_burocrata = "";
+        conversationID = "";
+
     }
     
     /**
@@ -43,6 +40,7 @@ public class Vehiculo extends Agente{
     public void execute() {
         /* VOID - to be OVERRIDE */
         checkin();
+        toStringAtributos();
     }
     
     /**
@@ -52,18 +50,23 @@ public class Vehiculo extends Agente{
      */
     protected boolean checkin() {
         
-        enviarMensaje(id_servidor,ACLMessage.REQUEST, cID_servidor);
+        int performativa ;
+        boolean tenemos_cID = false ;
+        boolean resultado = false ;
+
+        
+//        enviarMensaje(id_burocrata, ACLMessage.QUERY_REF, conversationID);
+
+// Espera a recibir el conversationID por parte del burócrata
         recibirMensaje();
         
-        cID_servidor = mensajeEntrada.getConversationId();
-
-        boolean resultado = mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM;
-        int performativa = mensajeEntrada.getPerformativeInt();
+        performativa = mensajeEntrada.getPerformativeInt();
         
         switch(performativa){
             case ACLMessage.INFORM:
-                System.out.println(" Aceptada petición de CHECKIN ");
-                // aceptamos las capabilities y las almacenamos
+                System.out.println(" Voy a recibir el conversationID por parte de Burócrata ");
+                conversationID = mensajeEntrada.getConversationId();
+                tenemos_cID = true ;
                 break;
                 
             case ACLMessage.NOT_UNDERSTOOD:
@@ -78,7 +81,41 @@ public class Vehiculo extends Agente{
                 break;    
         }
         
+        if (tenemos_cID) { // ZONA DE CHECKIN SI TENEMOS EL CID DEL SERVIDOR
+            mensaje = new JsonObject();
+            mensaje.add("command", "checkin");
+            enviarMensaje(id_servidor,ACLMessage.REQUEST, conversationID);
+            recibirMensaje();
+
+            conversationID = mensajeEntrada.getConversationId();
+
+            performativa = mensajeEntrada.getPerformativeInt();
+
+            switch(performativa){
+                case ACLMessage.INFORM:
+                    System.out.println(" Aceptada petición de CHECKIN ");
+                    JsonObject capabilities = mensaje.get("capabilities").asObject();
+                    rango = capabilities.get("range").asInt();
+                    fuel = capabilities.get("fuelrate").asInt();
+                    fly = capabilities.get("fly").asBoolean();
+                    resultado = true ;
+                    break;
+
+                case ACLMessage.NOT_UNDERSTOOD:
+                    System.out.println(" No entiendo lo que quieres. ");
+                    System.out.println(" Detalles: " + mensaje.get("details"));
+                    break;
+
+                default:
+                    System.out.println(
+                            " Se ha recibido la performativa: " 
+                            + performativa);
+                    break;    
+            }
+
+        }
         return resultado ;
+
     }
     
     protected void explorar() {}
@@ -89,18 +126,18 @@ public class Vehiculo extends Agente{
      * Método que encapsula la rutina de pedir refuel al servidor
      */
     
-    protected boolean refuel() {
+    protected boolean pedir_refuel() {
     
-        enviarMensaje(id_burocrata,ACLMessage.REQUEST, cID_servidor);
+        enviarMensaje(id_burocrata,ACLMessage.REQUEST, conversationID);
         recibirMensaje();
         
-        boolean resultado = mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM;
+        boolean resultado = false ;
         int performativa = mensajeEntrada.getPerformativeInt();
         
         switch(performativa){
             case ACLMessage.INFORM:
-                System.out.println(" Aceptada petición de CHECKIN ");
-                // Aquí que se hace
+                System.out.println(" Aceptada petición de hacer refuel ");
+                resultado = true ;               
                 break;
                 
             case ACLMessage.NOT_UNDERSTOOD:
@@ -123,5 +160,18 @@ public class Vehiculo extends Agente{
         return resultado ;
 
     }
-     
+    
+    
+    private boolean refuel() {
+        return true;
+    }
+    
+    
+    private void toStringAtributos () {
+        System.out.println("ultimo mensaje de entrada (checkin)" + mensajeEntrada.toString());
+        System.out.println("atributos : " 
+                + "fuel :" + fuel
+                + "rango :" + rango
+                + "fly :" + fly);
+    }
 }
