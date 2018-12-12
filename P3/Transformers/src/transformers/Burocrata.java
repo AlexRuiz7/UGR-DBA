@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,12 +26,12 @@ public class Burocrata extends Agente{
 
     private String conversationID;
 //    private String conversationID_controlador ;
-    AgentID controlador;
-    String nombreMapa;
-    String equipo;
-    int agentes_activos;
-    BufferedImage mapa;
-    String rutaFichero;
+    private AgentID id_controlador;
+    private String nombreMapa;
+    private String equipo;
+    private int agentes_activos;
+    private BufferedImage mapa;
+    private String rutaFichero;
 
     
 //    private String[] conversationID_vehiculos ;
@@ -52,7 +51,7 @@ public class Burocrata extends Agente{
     private void inicializar(String nombreServidor, String nombreMapa) 
             throws Exception {
 //       System.out.println("\n INICIALIZACION DEL BUROCRATA");
-        this.controlador = new AgentID(nombreServidor);
+        this.id_controlador = new AgentID(nombreServidor);
         conversationID = "";
         
         /**
@@ -138,12 +137,12 @@ public class Burocrata extends Agente{
      * Método que encapsula la rutina de cancelar la suscripción al mapa.
      * @return 
      */
-    public boolean cancel(){
+    private boolean cancel(){
         // Creando mensaje vacio
         mensaje = new JsonObject();
         
         // Enviando petición de cancelación de suscripción
-        enviarMensaje(controlador,ACLMessage.CANCEL, conversationID);
+        enviarMensaje(id_controlador,ACLMessage.CANCEL, conversationID);
         recibirMensaje();
         
         // Comprobando respuesta del Controlador
@@ -181,7 +180,7 @@ public class Burocrata extends Agente{
         mensaje = new JsonObject();
         mensaje.add("world", nombreMapa);
         
-        enviarMensaje(controlador, ACLMessage.SUBSCRIBE, conversationID);
+        enviarMensaje(id_controlador, ACLMessage.SUBSCRIBE, conversationID);
         
         recibirMensaje();
         conversationID = mensajeEntrada.getConversationId();
@@ -212,7 +211,7 @@ public class Burocrata extends Agente{
      */
     private void getTraza(boolean exito){
         try {
-            String fecha = Fecha();
+            String fecha = fecha();
             String nombreFichero =nombreMapa + "__" 
                     + equipo + " "
                     + fecha + "_"
@@ -266,7 +265,7 @@ public class Burocrata extends Agente{
      * @return              : Devuelve BufferedImage 
      * @throws IOException  : Excepción que en esta versión no se controla.
      */
-    public static BufferedImage getMapa(String nombre_archivo, String tipo) throws IOException{
+    private static BufferedImage getMapa(String nombre_archivo, String tipo) throws IOException{
         File imageFile = new File(nombre_archivo);
         BufferedImage image = ImageIO.read(imageFile);
         System.out.println("Características de la imagen. "
@@ -293,7 +292,7 @@ public class Burocrata extends Agente{
      * @param tipo:  Tipo de representación elegida 
      * @return 
      */
-    public static String conversor(int hex, String tipo){
+    private static String conversor(int hex, String tipo){
         String dato;
         
         if(tipo == "int")
@@ -347,7 +346,7 @@ public class Burocrata extends Agente{
      * @POST: Los caracteres '/' en el sistema Ubuntu 16.04 los interpreta como
      *  ruta, por ello se ha usado '-' como separador de fecha  
      */
-    public String Fecha(){
+    private String fecha(){
         Calendar c = Calendar.getInstance();
         int mes = c.get(Calendar.MONTH)+1;
         String fecha = + c.get(Calendar.DAY_OF_MONTH)+"-"
