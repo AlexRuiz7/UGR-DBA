@@ -39,7 +39,6 @@ public class Vehiculo extends Agente{
     @Override
     public void execute() {
         /* VOID - to be OVERRIDE */
-        recibirMensaje();
         checkin();
         toStringAtributos();
     }
