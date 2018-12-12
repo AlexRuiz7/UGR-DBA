@@ -35,7 +35,7 @@ public class Transformers {
             // Crear agente
             boolean informa = true;
             Burocrata optimusPrime = new Burocrata(id_burocrata, nombreServidor, nombreMapa, informa);
-            Vehiculo v = new Vehiculo(id_v, informa, id_servidor, id_burocrata);
+            Vehiculo v = new Vehiculo(id_v, id_servidor, id_burocrata, informa);
             
             // Despiertas agente.
             optimusPrime.start();

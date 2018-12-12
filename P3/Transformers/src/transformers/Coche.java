@@ -13,8 +13,7 @@ import es.upv.dsic.gti_ia.core.AgentID;
  */
 public class Coche extends Vehiculo{
     
-    public Coche(AgentID aID, boolean informa) throws Exception {
-        super(aID, informa);
+    public Coche(AgentID aID, AgentID id_servidor, AgentID id_burocrata, boolean informa) throws Exception {
+        super(aID, id_servidor, id_burocrata, informa);
     }
-    
 }

@@ -13,8 +13,8 @@ import es.upv.dsic.gti_ia.core.AgentID;
  */
 public class Dron extends Vehiculo{
     
-    public Dron(AgentID aID, boolean informa) throws Exception {
-        super(aID, informa);
+    public Dron(AgentID aID, AgentID id_servidor, AgentID id_burocrata, boolean informa) throws Exception {
+        super(aID, id_servidor, id_burocrata, informa);
     }
     
 }

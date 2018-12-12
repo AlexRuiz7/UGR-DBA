@@ -27,7 +27,7 @@ public class Vehiculo extends Agente{
     protected AgentID id_burocrata ;
     //private String conversationID ;
     
-    public Vehiculo(AgentID aID, boolean informa, AgentID id_servidor, AgentID id_burocrata) throws Exception {
+    public Vehiculo(AgentID aID, AgentID id_servidor, AgentID id_burocrata, boolean informa) throws Exception {
         super(aID, informa);
         this.id_servidor = id_servidor ;
         this.id_burocrata = id_burocrata ;
