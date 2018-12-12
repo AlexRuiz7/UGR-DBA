@@ -21,9 +21,9 @@ public class Transformers {
      */
     public static void main(String[] args) {
          try{
-            AgentID id_burocrata = new AgentID("Optimus_Prime");
+            AgentID id_burocrata = new AgentID("Optimus_Prime00");
             //AgentID destinatario = new AgentID("Explorador1");
-            AgentID id_v = new AgentID("vehiculo");
+            AgentID id_v = new AgentID("vehiculo00");
             String nombreServidor = "Girtab";
             String nombreMapa = "map1";
             AgentID id_servidor = new AgentID(nombreServidor);
@@ -34,11 +34,12 @@ public class Transformers {
             
             // Crear agente
             boolean informa = true;
-            Burocrata optimusPrime = new Burocrata(id_burocrata, nombreServidor, nombreMapa, informa);
+            Burocrata optimusPrime = new Burocrata(id_burocrata, nombreServidor, id_v, nombreMapa, informa);
             Vehiculo v = new Vehiculo(id_v, id_servidor, id_burocrata, informa);
             
             // Despiertas agente.
             optimusPrime.start();
+            v.start();
         }
         catch(Exception ex) {
             System.out.println("Excepción " + ex.toString());
