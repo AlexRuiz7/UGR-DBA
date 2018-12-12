@@ -39,6 +39,7 @@ public class Vehiculo extends Agente{
     @Override
     public void execute() {
         /* VOID - to be OVERRIDE */
+        recibirMensaje();
         checkin();
         toStringAtributos();
     }
@@ -54,7 +55,8 @@ public class Vehiculo extends Agente{
         boolean tenemos_cID = false ;
         boolean resultado = false ;
 
-        
+        mensaje = new JsonObject();
+        mensaje.add("command", "getCID");
         enviarMensaje(id_burocrata, ACLMessage.QUERY_REF, conversationID);
         recibirMensaje();
         
@@ -80,6 +82,9 @@ public class Vehiculo extends Agente{
         }
         
         if (tenemos_cID) { // ZONA DE CHECKIN SI TENEMOS EL CID DEL SERVIDOR
+            
+            mensaje = new JsonObject();
+            mensaje.add("command", "checkin");
             enviarMensaje(id_servidor,ACLMessage.REQUEST, conversationID);
             recibirMensaje();
 
@@ -158,7 +163,37 @@ public class Vehiculo extends Agente{
     }
     
     private boolean refuel() {
-        return true;
+        enviarMensaje(id_servidor,ACLMessage.REQUEST, conversationID);
+        recibirMensaje();
+        
+        boolean resultado = false ;
+        int performativa = mensajeEntrada.getPerformativeInt();
+        
+        switch(performativa){
+            case ACLMessage.INFORM:
+                System.out.println(" Aceptada petición de hacer refuel ");
+                resultado = true ;               
+                break;
+                
+            case ACLMessage.NOT_UNDERSTOOD:
+                System.out.println(" No entiendo lo que quieres. ");
+                System.out.println(" Detalles: " + mensaje.get("details"));
+                break;
+                
+            case ACLMessage.REFUSE:
+                System.out.println(" No entiendo lo que quieres. ");
+                System.out.println(" Detalles: " + mensaje.get("details"));
+                break;
+                
+            default:
+                System.out.println(
+                        " Se ha recibido la performativa: " 
+                        + performativa);
+                break;    
+        }
+        
+        return resultado ;
+
     }
     
     
