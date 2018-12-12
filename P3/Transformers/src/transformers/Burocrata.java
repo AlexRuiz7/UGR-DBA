@@ -25,11 +25,11 @@ import javax.imageio.ImageIO;
 public class Burocrata extends Agente{
 
     private String conversationID;
-//    private String conversationID_controlador ;
     private AgentID id_controlador;
     private String nombreMapa;
     private String equipo;
     private int agentes_activos;
+    private AgentID id_vehiculo;
     private BufferedImage mapa;
     private String rutaFichero;
 
@@ -94,10 +94,11 @@ public class Burocrata extends Agente{
      * @param informa:        Con valor TRUE informa de toda comunicación.
      * @throws Exception 
      */
-    public Burocrata(AgentID aID, String nombreServidor,
+    public Burocrata(AgentID aID, String nombreServidor, AgentID vehiculo,
         String nombreMapa, boolean informa)
         throws Exception{
            super(aID, informa);
+           this.id_vehiculo = vehiculo; 
            inicializar(nombreServidor, nombreMapa);
     }
     
@@ -129,7 +130,15 @@ public class Burocrata extends Agente{
         obtenerMapa();
         
         ToStringMapa("hex");
+        
+        // Suscibriendose al mapa
         subscribe(nombreMapa);
+        
+        // Envia mensaje a los agentes con el conversationID 
+        mensaje = new JsonObject();
+        mensaje.add("result", "Enviando conversationID");
+        enviarMensaje(id_vehiculo, ACLMessage.INFORM, conversationID);
+        
     }
     
     /**
@@ -167,6 +176,7 @@ public class Burocrata extends Agente{
                 break;    
         }
         
+        conversationID = "";
         return resultado;
         
     }
@@ -199,7 +209,6 @@ public class Burocrata extends Agente{
         } catch (IOException ex) {
             Logger.getLogger(Burocrata.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
     }
     /**
      * @author: Germán
