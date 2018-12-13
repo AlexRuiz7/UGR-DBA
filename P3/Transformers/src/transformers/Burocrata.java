@@ -25,7 +25,6 @@ import javax.imageio.ImageIO;
  */
 public class Burocrata extends Agente{
 
-    private String conversationID;
     private AgentID id_controlador;
     private String nombreMapa;
     private String equipo;
