@@ -237,25 +237,35 @@ public class Burocrata extends Agente{
                        + " resistrado";
         
                vehiculos_activos++;
-               System.out.println(vehiculo_registrado);
-               System.out.println("equipo"+ equipo);
-        
                equipo += mensaje.get("fuelrate");
-               System.out.println("equipo: "+ equipo);     
+               
+               if(informa) System.out.println(vehiculo_registrado);     
            }
            else{
                System.out.println(
                        " Se ha recibido la performativa: " 
                         + mensajeEntrada.getPerformativeInt());
-           }
+           }    
        }
-
+       
+       if(informa) System.out.println(" El equipo es: "+ equipo);
+       
+       for(int i=0; i<vehiculos_activos; i++){
+           mensaje = new JsonObject();
+           mensaje.add("result", "OK");
+           enviarMensaje(agentID_vehiculos.get(i), ACLMessage.INFORM, conversationID);
+       }
        
        /** 
         * @Nota: En este momento los vehículos están en disposición de pedir 
-        * las percepciones al controlador, por tanto el agente burócrata
-        * espera recibir dichas percepciones
+        *  las percepciones al controlador y por tanto el agente burócrata
+        *  espera recibir dichas percepciones.
         * 
+        *  Para seguir con el criterio de:
+        *   "el último que recibe, es el siguiente en enviar "
+        *  Toca no presuponer que el vehñiculo pedirá las percepciones 
+        *  y por tanto burócrata le enviará un mensaje de "OK" 
+        *  simbolizando que "Ok, he recibido tus capabilities "
         */
         System.out.println("AHORA TOCA pedir las percepciones de los vehiculos "
         + " al controlador y esperar a recibir el scanner de cada uno ");
