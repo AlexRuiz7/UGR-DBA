@@ -30,6 +30,7 @@ public class Agente extends SingleAgent {
     
     // Variable necesaria para continual una conversación. 
     protected String replyWith;
+    protected String conversationID;
     
     /**
      * Método que inicializa los atributos 
