@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,15 +29,16 @@ public class Burocrata extends Agente{
     private AgentID id_controlador;
     private String nombreMapa;
     private String equipo;
-    private int agentes_activos;
-    private AgentID id_vehiculo;
+    private ArrayList<AgentID> agentID_vehiculos;
+    private int vehiculos_activos;
+    private int VEHICULOS_MAX;
+    
     private BufferedImage mapa;
     private String rutaFichero;
 
     
 //    private String[] conversationID_vehiculos ;
     private int[] estados_vehiculos ;
-    private int vehiculos_activos ;
     private int tamanio_mapa ;
     
     /**
@@ -48,7 +50,8 @@ public class Burocrata extends Agente{
      * @param nombreMapa:     Nombre del mapa a explorar
      * @throws Exception 
      */
-    private void inicializar(String nombreServidor, String nombreMapa) 
+    private void inicializar(String nombreServidor, String nombreMapa,
+            ArrayList<AgentID> vehiculos) 
             throws Exception {
 //       System.out.println("\n INICIALIZACION DEL BUROCRATA");
         this.id_controlador = new AgentID(nombreServidor);
@@ -58,9 +61,15 @@ public class Burocrata extends Agente{
          * Hasta que no se realice el chekin por parte de los exploradores
          * no se conoce la configuración de equipo.
          */
-        equipo = "0000";
-        agentes_activos = 0;
-        System.out.println("Equipo " + equipo);
+        equipo = "";
+        vehiculos_activos = 0;
+        VEHICULOS_MAX = vehiculos.size();
+        
+        
+        agentID_vehiculos = new ArrayList<>();
+        for(int i=0; i< VEHICULOS_MAX; i ++){
+               agentID_vehiculos.add(vehiculos.get(i));
+           }
         
         /**
          * Necesario para crear el nombre del archivo que contendrá la traza
@@ -76,12 +85,15 @@ public class Burocrata extends Agente{
      * @param nombreServidor: Nombre del controlador 
      *                         con el que se comunicará el agente 
      * @param nombreMapa:     Nombre del mapa a explorar
+     * @param vehiculos
      * @throws Exception 
      */
-    public Burocrata(AgentID aID, String nombreServidor, String nombreMapa)
+    public Burocrata(AgentID aID, String nombreServidor,
+            ArrayList<AgentID> vehiculos, String nombreMapa
+            )
         throws Exception{
             super(aID, false);
-            inicializar(nombreServidor, nombreMapa);
+            inicializar(nombreServidor, nombreMapa, vehiculos);
     }
     /**
      * @author: Germán
@@ -90,16 +102,18 @@ public class Burocrata extends Agente{
      * @param aID:            Identificador del agente
      * @param nombreServidor: Nombre del controlador 
      *                         con el que se comunicará el agente 
+     * @param vehiculos 
      * @param nombreMapa:     Nombre del mapa a explorar
      * @param informa:        Con valor TRUE informa de toda comunicación.
      * @throws Exception 
      */
-    public Burocrata(AgentID aID, String nombreServidor, AgentID vehiculo,
-        String nombreMapa, boolean informa)
+    public Burocrata(AgentID aID, String nombreServidor,
+            ArrayList<AgentID> vehiculos, String nombreMapa, 
+            boolean informa)
         throws Exception{
            super(aID, informa);
-           this.id_vehiculo = vehiculo; 
-           inicializar(nombreServidor, nombreMapa);
+           
+           inicializar(nombreServidor, nombreMapa, vehiculos);
     }
     
     
@@ -109,6 +123,7 @@ public class Burocrata extends Agente{
      * 
      * @Nota 9-12-2018: Probando los métodos subscribe, cancel y obtener mapa
      */
+    @Override
     public void execute(){
         /**
          * Inicialmente se pretendo mandar un mensaje de cancel para 
@@ -130,14 +145,122 @@ public class Burocrata extends Agente{
         obtenerMapa();
         
         ToStringMapa("hex");
-        
+        /**
+         * @Nota: En este momento el burócrata no conoce el conversationID 
+         *  necesario para que los vehículos realicen checkin.
+         * Por tanto hay dos opciones:
+         *   @Opción1: Que los vehículos pregunten al burócrata por el
+         *    conversationID.
+         *    Lo que implicaría que el burocrata respondiese que no lo tiene o
+         *    que inicie una comunicación con el controlador.
+         *    Lo que nos lleva a una situación donde el burócrata espera
+         *    respuesta del controlador y de los vehículos.
+         *    Por tanto hay riego de interbloqueo. ¿Comó evitarlo?
+         *    Entrando el burócrata en un bucle donde solamente saldrá cuando 
+         *    reciba elconversationID y rechazando todos los demás mensajes.
+         *    Lo que conlleva que los vehículos entren en otro bucle del cual
+         *    no saldrán mientras se le rechace;
+         *    saldrán cuando reciban un mensaje con el conversationID.
+         *    @IMPORTANTE: Hay una limitación en la comunicación por parte
+         *    de la librería magentix que es de 65535 mensajes.
+         * 
+         *  @Opción2: Que los vehículos esperen a recibir el conversationID.
+         *    Ello implica que el burócrata debe suscribirse y después enviar
+         *    el conversationID a los vehículos.
+         *    Por tanto no hay riesgo de interfoliación ni de superar el límite
+         *    de mensajes.
+         */
         // Suscibriendose al mapa
         subscribe(nombreMapa);
         
+        /**
+         * @Nota: En este momento el controlador queda a la espera del checkin
+         *  de los vehículos, y los vehículos desconocen el conversationID
+         *  con el cual poder comunicarse con el controlador.
+         * En este momento hay dos opciones:
+         *  @Opción1: Ser los vehículos quien pregunten por el conversationID 
+         *   con el riesgo de enviar el mensaje antes de haber acabado la 
+         *   comunicación del burócrata con el controlador en el subscribe.
+         *   @Reflexión ¿Cómo evita recibir el mensaje antes de tiempo
+         *   y por ende evitar el interbloqueo?
+         *   El mensaje se va a recibir si o si, no hay manera de sincronizarlos
+         *   Lo que si se puede hacer es verificar si se esta recibiendo lo que 
+         *   se espera recibir y en otro caso enviar REFUSE.
+         *   Ello implica que el vehículo entra en un bucle while, 
+         *   del cual saldrá cuando reciba una performativa distinta a REFUSE.
+         *   @IMPORTANTE: Tenemos el problema del limite de mensajes de 65536
+         * 
+         *  @Opción2: Ser el burócrata quien envie el mensaje a los vehículos,
+         *   ello implica que solo se enviará el mensaje del conversationID cuando
+         *   el burócrata termina la conversación con el controlador, 
+         *   evitando así el interbloqueo.
+         *   @IMPORTANTE: El riego de llegar a 65535 mensajes no está presente.
+         */
+
         // Envia mensaje a los agentes con el conversationID 
         mensaje = new JsonObject();
         mensaje.add("result", "Enviando conversationID");
-        enviarMensaje(id_vehiculo, ACLMessage.INFORM, conversationID);
+        for(int i=0; i<VEHICULOS_MAX; i++){
+            enviarMensaje(agentID_vehiculos.get(i), ACLMessage.INFORM, conversationID);
+        }
+        
+        
+        /** Ahora es el momento de esperar al checkin de los agentes para ser 
+         * informado de sus capacidades.
+         *  Hay dos opciones:
+         *   @Opción1: El burócrata pide las capacidades a los vehículos,
+         *    con el riesgo de enviar el mensaje antes de haber terminado el 
+         *    vehículo la conversación con el controlador (durante el checkin)
+         *    provocando interbloqueo.
+         *   @Reflexión: ¿Cómo evitarlo?
+         *   Siendo rechazadas las peticiones del burócrata entrando en un bucle 
+         *    de pregunta y rechazo del cual saldrá cuando el vehículo envie sus
+         *    capacidades al burócrata, esto ocurrirá cuando el vehículo termine 
+         *    la conversación con el controlador.
+         * 
+         *  @Opción2: El burócrata espera a que el vehículo le envie sus 
+         *   capacidades, esto ocurrirá cuando el vehículo termine la 
+         *   conversación con el controlador.
+         */
+        
+        /**
+         * @PRE: Se presupone que los agentes recibidos en el constructor 
+         * aún no se han movido y por tanto no están CRASHEADOS,
+         * y aún no han pedido las percepciones al controlador.
+         */
+       String vehiculo_registrado = "";
+       
+       for(int i = 0; i<VEHICULOS_MAX; i++){
+           recibirMensaje();
+           if(mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM){
+               vehiculo_registrado = "Agente: " 
+                       + mensajeEntrada.getSender().getLocalName()
+                       + " resistrado";
+        
+               vehiculos_activos++;
+               System.out.println(vehiculo_registrado);
+               System.out.println("equipo"+ equipo);
+        
+               equipo += mensaje.get("fuelrate");
+               System.out.println("equipo: "+ equipo);     
+           }
+           else{
+               System.out.println(
+                       " Se ha recibido la performativa: " 
+                        + mensajeEntrada.getPerformativeInt());
+           }
+       }
+
+       
+       /** 
+        * @Nota: En este momento los vehículos están en disposición de pedir 
+        * las percepciones al controlador, por tanto el agente burócrata
+        * espera recibir dichas percepciones
+        * 
+        */
+        System.out.println("AHORA TOCA pedir las percepciones de los vehiculos "
+        + " al controlador y esperar a recibir el scanner de cada uno ");
+       
         
     }
     
