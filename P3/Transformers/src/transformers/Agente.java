@@ -187,8 +187,7 @@ public class Agente extends SingleAgent {
                 + "\n   mensajeEntrada: " + print(mensajeEntrada)
                 + "\n\n   mensajeSalida:  " + print(mensajeSalida)
                 + "\n\n   mensaje:        " + mensaje.toString();
-        
-        System.out.println(atributos);
+
         return atributos;
     }
     
