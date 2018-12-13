@@ -226,20 +226,29 @@ public class Burocrata extends Agente{
          * @PRE: Se presupone que los agentes recibidos en el constructor 
          * aún no se han movido y por tanto no están CRASHEADOS,
          * y aún no han pedido las percepciones al controlador.
+
+         * @Nota: En este momento los vehículos están en disposición de pedir 
+         *  las percepciones al controlador y por tanto el agente burócrata
+         *  espera recibir dichas percepciones.
+         * 
+         *  Para seguir con el criterio de:
+         *   "el último que recibe, es el siguiente en enviar "
+         *  Toca no presuponer que el vehiculo pedirá las percepciones 
+         *  y por tanto el burócrata le enviará un mensaje de "OK" 
+         *  simbolizando que "Ok, he recibido tus capabilities "
+         * 
          */
-       String vehiculo_registrado = "";
-       
        for(int i = 0; i<VEHICULOS_MAX; i++){
            recibirMensaje();
            if(mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM){
-               vehiculo_registrado = "Agente: " 
-                       + mensajeEntrada.getSender().getLocalName()
-                       + " resistrado";
-        
                vehiculos_activos++;
                equipo += mensaje.get("fuelrate");
                
-               if(informa) System.out.println(vehiculo_registrado);     
+               if(informa)
+                   System.out.println(
+                       "Agente: " 
+                       + mensajeEntrada.getSender().getLocalName()
+                       + " resistrado");   
            }
            else{
                System.out.println(
@@ -256,17 +265,6 @@ public class Burocrata extends Agente{
            enviarMensaje(agentID_vehiculos.get(i), ACLMessage.INFORM, conversationID);
        }
        
-       /** 
-        * @Nota: En este momento los vehículos están en disposición de pedir 
-        *  las percepciones al controlador y por tanto el agente burócrata
-        *  espera recibir dichas percepciones.
-        * 
-        *  Para seguir con el criterio de:
-        *   "el último que recibe, es el siguiente en enviar "
-        *  Toca no presuponer que el vehñiculo pedirá las percepciones 
-        *  y por tanto burócrata le enviará un mensaje de "OK" 
-        *  simbolizando que "Ok, he recibido tus capabilities "
-        */
         System.out.println("AHORA TOCA pedir las percepciones de los vehiculos "
         + " al controlador y esperar a recibir el scanner de cada uno ");
        
