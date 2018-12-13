@@ -24,11 +24,18 @@ public class Vehiculo extends Agente{
     protected AgentID id_servidor ;
     protected AgentID id_burocrata ;
     
+    /**
+     * Variable innecesaria pero útil para reutilizarla en cada comparativa
+     * con las performativas a esperar.
+     */
+    protected boolean performativa_adecuada;
+    
     public Vehiculo(AgentID aID, AgentID id_servidor, AgentID id_burocrata, boolean informa) throws Exception {
         super(aID, informa);
         this.id_servidor = id_servidor ;
         this.id_burocrata = id_burocrata ;
         conversationID = "";
+        performativa_adecuada = false;
 
     }
     
@@ -128,6 +135,23 @@ public class Vehiculo extends Agente{
          */
         
         recibirMensaje();
+        performativa_adecuada = "OK".equals(mensaje.get("result").asString());
+        if(informa)
+            if(performativa_adecuada){
+                System.out.println(
+                    "[" + this.getAid().getLocalName() + "] "
+                    +"Confirmación, todo el equipo está logueado. ");
+            }
+            else{
+                System.out.println(
+                        " Mensaje no esperado: " 
+                        + print(mensajeEntrada));
+        }
+        
+        if(performativa_adecuada) pedir_percepciones();
+        else System.out.println(
+                "\n ERROR performativa inesperada "
+                + print(mensajeEntrada));
         
     }
     
@@ -207,7 +231,29 @@ public class Vehiculo extends Agente{
         return resultado;
 
     }
-    
+    /**
+     * @author: Germán
+     * Método que encapsula la rutina de pedir al controlador las percepciones.
+     * @Pasos:
+     *  1º] Envia mensaje al controlador mediante petición QUERY_REF
+     *  2º] Espera mensaje de respuesta con performativa  INFORM
+     *       o con performativa NOT_UNDERSTOOD
+     * @PRE Debe tenerse almacenada el replyWith de la anterior comunicación
+     * @POS Debe almacenarse el replyWith de esta comunicación
+     */
+    protected void pedir_percepciones(){
+        mensaje = new JsonObject();
+        enviarMensaje(
+                id_servidor, ACLMessage.QUERY_REF,
+                conversationID, replyWith);
+        if(informa) print(mensajeSalida);
+        
+        recibirMensaje();
+        if(informa) print(mensajeEntrada);
+        
+        replyWith = mensajeEntrada.getReplyWith();
+        
+    }
     protected void explorar() {}
     
     
