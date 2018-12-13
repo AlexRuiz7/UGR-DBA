@@ -23,7 +23,6 @@ public class Vehiculo extends Agente{
     protected ArrayList<Integer> scanner ;
     protected AgentID id_servidor ;
     protected AgentID id_burocrata ;
-    protected String conversationID ;
     
     public Vehiculo(AgentID aID, AgentID id_servidor, AgentID id_burocrata, boolean informa) throws Exception {
         super(aID, informa);
@@ -54,8 +53,18 @@ public class Vehiculo extends Agente{
         /**
          * @PRE: Al optar por la opción2, checkin contiene la espera del
          *  conversationID.
+         *  Cuando se realiza correctamente el checkin también recibo
+         *  un replyWith, necesario para continuar con la conversacion con el 
+         *  controlador.
          */
         checkin();
+        
+        /**
+         * @Nota En este momento tengo el replyWith en el mensaje de entrada
+         *  (que es la respuesta del controlador al checkin),
+         *  necesario para la siguiente petición con el controlador.
+         */
+        replyWith = mensajeEntrada.getReplyWith();
         
         /**
          * Muestra el contenido del agente para verificar que se ha realizado 
@@ -79,7 +88,7 @@ public class Vehiculo extends Agente{
          *   controlador pues ya no interactua con él hasta realizar el cancel.
          *   Por tanto no hay riesgo de interbloqueo
  
-         * En nuestro caso solo el fuelrate, pues de él se pueden deducir
+         * En nuestro caso solo el fuelrate, pues de él se puede deducir
          * las demás al ser combinaciones fijas de capabilities.
          */
         System.out.println("\n MUESTRO el contenido del mensaje: "+ mensaje.toString());
@@ -96,12 +105,37 @@ public class Vehiculo extends Agente{
         enviarMensaje(id_burocrata, ACLMessage.INFORM, conversationID);
         
         System.out.println(this.toString());
+        
+        /**
+         * @Nota: En este momento estoy logueado en el mundo y tengo 
+         *  el conversationID, por lo que puedo pedir las percepciones.
+         *  Por tanto tengo al menos dos opciones.
+         *  @Opción1: Empiezo a perdir las percepciones al controlador para 
+         *   enviarlas  despues al burócrata.
+         * 
+         *  @Opción2: Espero a que el burórata me envíe un mensaje
+         *   de confirmación diciendome que todo el equipo está logueado.
+         * 
+         *  En este momento ambas opciones son buenas pues no hay peligro
+         *  de interbloqueo.
+         * 
+         * @IMPORTANTE Para poder comunicarme con en controlador debo 
+         * tener almacenado el replyWith para seguir con la conversación
+         */
+        
+        /**
+         * Opción2 elegida,
+         */
+        
+        recibirMensaje();
+        
     }
     
     /**
      * Método que encapsula la rutina de checkin
      * @author: Alvaro
      * Método que encapsula la rutina de hacer checkin al servidor/controlador
+     * @return Devuelve si ha sido un éxito o no.
      */
     protected boolean checkin() {
         
@@ -170,7 +204,7 @@ public class Vehiculo extends Agente{
             }
 
         }
-        return resultado ;
+        return resultado;
 
     }
     
