@@ -126,7 +126,7 @@ public class Burocrata extends Agente{
     @Override
     public void execute(){
         /**
-         * Inicialmente se pretendo mandar un mensaje de cancel para 
+         * Inicialmente se pretende mandar un mensaje de cancel para 
          * cerrar la sesión anterior y empezar la nueva sesión.
          * Hay dos situaciones posibles al envial el cancel.
          *  AGREE:
@@ -167,7 +167,7 @@ public class Burocrata extends Agente{
          *  @Opción2: Que los vehículos esperen a recibir el conversationID.
          *    Ello implica que el burócrata debe suscribirse y después enviar
          *    el conversationID a los vehículos.
-         *    Por tanto no hay riesgo de interfoliación ni de superar el límite
+         *    Por tanto no hay riesgo de interbloqueo ni de superar el límite
          *    de mensajes.
          */
         // Suscibriendose al mapa
