@@ -209,8 +209,9 @@ public class Agente extends SingleAgent {
                 + contenido_del_mensaje.getConversationId()
                 + "\n\t ReplyWith:      "
                 + contenido_del_mensaje.getReplyWith()
-                + "\n\t ReplyBy:        "
-                + contenido_del_mensaje.getReplyBy();
+                + "\n\t InReplyTo:      "
+                + contenido_del_mensaje.getInReplyTo();
+              
         return contenido;
     }
     
