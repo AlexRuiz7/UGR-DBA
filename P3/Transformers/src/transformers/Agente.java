@@ -18,16 +18,19 @@ import es.upv.dsic.gti_ia.core.SingleAgent;
  * @author Germán, Alvaro
  */
 public class Agente extends SingleAgent {
-    //Evita creación de objetos Json durante la ejecución del agente 
+    // Evita creación de objetos Json durante la ejecución del agente 
     protected JsonObject mensaje;
     
-    //Evita crear ACLMessage durante la ejecución del agente, reutiliza objeto. 
+    // Evita crear ACLMessage durante la ejecución del agente, reutiliza objeto. 
     protected ACLMessage mensajeSalida;
     protected ACLMessage mensajeEntrada;
     
-    //Variable necesaria si se quiere visualizar el intercambio de mensajes.
+    // Variable necesaria si se quiere visualizar el intercambio de mensajes.
     protected boolean informa;
-        
+    
+    // Variable necesaria para continual una conversación. 
+    protected String replyWith;
+    
     /**
      * Método que inicializa los atributos 
      * @author Germán
@@ -41,7 +44,7 @@ public class Agente extends SingleAgent {
      *  mensajeEntrada   Almacena el mensaje se entrada.
      *  mensajeSalida    Almacena el mensaje de salida.
      */
-    private void inicializar(AgentID aID, boolean informa) throws Exception {
+    private void inicializar(boolean informa) throws Exception {
 //        System.out.println("\n INICIALIZACION DEL AGENTE");
         mensaje = new JsonObject();              
         mensajeSalida     = new ACLMessage();
@@ -61,7 +64,7 @@ public class Agente extends SingleAgent {
      */
     public Agente(AgentID aID) throws Exception{
         super(aID);
-        inicializar(aID, false);
+        inicializar(false);
     }
     
     /**
@@ -74,7 +77,7 @@ public class Agente extends SingleAgent {
      */
     public Agente(AgentID aID, boolean informa) throws Exception{
         super(aID);
-        inicializar(aID, informa);
+        inicializar(informa);
     }
     
     
