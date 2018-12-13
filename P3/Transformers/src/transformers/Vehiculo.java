@@ -38,9 +38,62 @@ public class Vehiculo extends Agente{
      */
     @Override
     public void execute() {
-        /* VOID - to be OVERRIDE */
+        /**
+         * @Nota: El vehículo necesita el conversationID para hacer checkin
+         * En este momento hay dos opciones.
+         *  @Opción1: Preguntar por el conversationID lo que podría provocar un
+         *   interbloqueo si el mensaje lo recibe el burócrata mientras está
+         *   realizando la suscripción.
+         *   ¿Cómo evitar el interbloqueo? Entrando en un bloque de rechazos
+         *   por parte del burócrata hasta recibir el conversationID.
+         * 
+         *  @Opción2: Esperar a recibir el conversationID hasta que el burócrata
+         *   termine la comunicación con el controlador. 
+         */
+        
+        /**
+         * @PRE: Al optar por la opción2, checkin contiene la espera del
+         *  conversationID.
+         */
         checkin();
+        
+        /**
+         * Muestra el contenido del agente para verificar que se ha realizado 
+         * correctamente la asignación de las capabilities
+         */
         toStringAtributos();
+        
+        /**
+         * @Nota: Ahora que el vehículo sabe sus capabilities.
+         *  Por tanto tenemos dos situaciones posibles.
+         * 
+         *  @Opción1: Esperar a recibir un mensaje del burócrata para enviarle 
+         *   la capabilities.
+         *   En este momento, podemos sufrir interbloqueo, pues esperamos
+         *   un mensaje del controlador para recibir nuestras capabilities 
+         *   y esperando un mensaje del burócrata para responderle con nuestras
+         *   capabilities por tanto es necesario entrar en un bucle de rechazos
+         *   al burócrata hasta obtener las capabilities y poder responderle.
+         *  @Opción2: Enviar al burócrata un mensaje con nuestras cababilities
+         *   En este momento, el burócrata no debe estar esperando mensajes del 
+         *   controlador pues ya no interactua con él hasta realizar el cancel.
+         *   Por tanto no hay riesgo de interbloqueo
+ 
+         * En nuestro caso solo el fuelrate, pues de él se pueden deducir
+         * las demás al ser combinaciones fijas de capabilities.
+         */
+        System.out.println("\n MUESTRO el contenido del mensaje: "+ mensaje.toString());
+        
+        /**
+         * En el diagrama de comunicadión es el burocrata quien pregunta por ellas
+         * por tanto no envio mis capacidades, pero espero a que me pregunte.
+         * Pero hay interfoliación con riesgo de inter-bloqueo.
+         * 
+         * Provisionalmente implemento la opción2.
+         */
+        mensaje = new JsonObject();
+        mensaje.add("fuelrate", fuel );
+        enviarMensaje(id_burocrata, ACLMessage.INFORM, conversationID);
     }
     
     /**
