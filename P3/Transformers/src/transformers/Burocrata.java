@@ -261,7 +261,7 @@ public class Burocrata extends Agente{
         System.out.println("AHORA TOCA pedir las percepciones de los vehiculos "
         + " al controlador y esperar a recibir el scanner de cada uno ");
        
-        
+        System.out.println(this.toString());
     }
     
     /**

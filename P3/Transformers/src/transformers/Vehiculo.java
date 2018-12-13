@@ -94,6 +94,8 @@ public class Vehiculo extends Agente{
         mensaje = new JsonObject();
         mensaje.add("fuelrate", fuel );
         enviarMensaje(id_burocrata, ACLMessage.INFORM, conversationID);
+        
+        System.out.println(this.toString());
     }
     
     /**
