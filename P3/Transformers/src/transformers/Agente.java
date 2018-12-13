@@ -105,20 +105,12 @@ public class Agente extends SingleAgent {
             mensajeEntrada = this.receiveACLMessage();
             
             if(informa){
-                System.out.println("Recibiendo mensaje");
-                System.out.println("["
-                    + mensajeEntrada.getReceiver().getLocalName()
-                    + "]"
-                    + "\t mensaje recibido de "
-                    + mensajeEntrada.getSender().getLocalName()
-                    + "\t\t contenido: "
-                    + mensajeEntrada.getContent()
-                    + "\n\t\t\t\t\t\t\t performativa: "
-                    + mensajeEntrada.getPerformative()
-                    + "\n\t\t\t\t\t\t\t conversationID: "
-                    + mensajeEntrada.getConversationId()
-                    + "\n\t\t\t\t\t\t\t replay with: "
-                    + mensajeEntrada.getReplyWith());
+                System.out.println(" [" 
+                  + mensajeEntrada.getReceiver().getLocalName()
+                  + "] recibe de "
+                  + mensajeEntrada.getSender().getLocalName()
+                  + print(mensajeEntrada)
+                );
             }
             
         }
@@ -162,18 +154,11 @@ public class Agente extends SingleAgent {
         this.send(mensajeSalida);                      // Enviando el mensaje.
         
         if(informa){
-            System.out.println("["
-                + mensajeSalida.getSender().getLocalName()
-                + "]\t mensaje enviado a "
-                + mensajeSalida.getReceiver().getLocalName()
-                + "\t\t contenido: "
-                + mensajeSalida.getContent()
-                + "\n\t\t\t\t\t\t\t performativa: "
-                + mensajeSalida.getPerformative()
-                + "\n\t\t\t\t\t\t\t conversationID: "
-                + mensajeSalida.getConversationId()
-                + "\n\t\t\t\t\t\t\t In repaly to: "
-                + mensajeSalida.getInReplyTo());
+            System.out.println(" [" 
+                  + mensajeSalida.getSender().getLocalName()
+                  + "] envia a  "
+                  + mensajeSalida.getReceiver().getLocalName()
+                  + print(mensajeSalida));
         }
     }
     
@@ -191,6 +176,39 @@ public class Agente extends SingleAgent {
             int performativa,
             String conversationID){
         enviarMensaje(destinatario, performativa, conversationID, "");
+    }
+    
+    @Override
+    public String toString(){
+        String atributos = "\n Estado interno de "
+                + " ["+this.getAid().getLocalName()+"]"
+                + "\n [INFORMA]: " + informa
+                + "\n [MENSAJES]"
+                + "\n   mensajeEntrada: " + print(mensajeEntrada)
+                + "\n\n   mensajeSalida:  " + print(mensajeSalida)
+                + "\n\n   mensaje:        " + mensaje.toString();
+        
+        System.out.println(atributos);
+        return atributos;
+    }
+    
+    protected String print(ACLMessage contenido_del_mensaje){
+        String contenido =
+                  "\n\t Emisor:         "
+                + contenido_del_mensaje.getSender().getLocalName()
+                + "\n\t Receptor:       "
+                + contenido_del_mensaje.getReceiver().getLocalName()
+                + "\n\t Contenido:      "
+                + contenido_del_mensaje.getContent()
+                + "\n\t Performativa:   "
+                + contenido_del_mensaje.getPerformative()
+                + "\n\t ConversationID: "
+                + contenido_del_mensaje.getConversationId()
+                + "\n\t ReplyWith:      "
+                + contenido_del_mensaje.getReplyWith()
+                + "\n\t ReplyBy:        "
+                + contenido_del_mensaje.getReplyBy();
+        return contenido;
     }
     
 }
