@@ -302,40 +302,47 @@ public class Vehiculo extends Agente{
     }
     
     private boolean enviar_percepciones(){
-        boolean resultado = false;        
-        JsonObject result = mensaje.get("result").asObject();
-        
-        // Valores percibidos en el mapa
-        result.add("percepciones", result.get("sensor"));
-        
-        // Rango de visión, importante para actualizar el mapa 
-        result.add("rango", rango );
-        
-        // Posición del vehículo, importante para situar las percepciones
-        // en el mapa
-        result.add("x", result.get("x"));
-        result.add("y", result.get("y"));
+        boolean resultado =false;       
         
         /**
          * Pide ayuda cuando percibe que el movimiento anterior y 
          *  el actual a realizar son opuestos.
          * @IMPORTANTE decidir en este momento el movimiento a realizar ahora.
          */ 
-        result.add("ayuda", ayuda);
+        mensaje.add("ayuda", ayuda);
         
         // Estado del vehículo, importante para el burócrata 
         // para tomar sus decisiones. 
-        result.add("estado", estado);
+        mensaje.add("estado", estado);
         
         // Pide permiso para realizar refuel.
-        refuel = result.get("battery").asInt() <= fuelrate;
-        result.add("refuel", refuel);
+        refuel = mensaje.get("result").asObject().get("battery").asInt() <= fuelrate;
+        mensaje.add("refuel", refuel);
         if(refuel){
             //Espera respusta del burócrata para saber qué movimiento realizar
         }
         
-        result.add("energy", result.get("energy"));
-        result.add("destino", result.get("goal"));
+        enviarMensaje(id_burocrata, ACLMessage.INFORM, conversationID);
+        if(informa){
+            System.out.println(
+                "["+ this.getAid().getLocalName() + "]"
+                + "\n Mensaje de salida: " +print(mensajeSalida));
+
+            System.out.println(
+                "["+ this.getAid().getLocalName() + "]"
+                + "\n Esperando confirmación del burócrata:");
+        }
+        recibirMensaje();
+        
+        if(informa){
+            System.out.println(
+                "["+ this.getAid().getLocalName() + "]"
+                + "\n Recibida la confirmación");
+        }
+        
+        resultado = mensaje.get("result").asString().equals("OK");
+        if(informa)
+            System.out.println("Resultado de la Actualización: "+ resultado);
         
         return resultado;
     }
