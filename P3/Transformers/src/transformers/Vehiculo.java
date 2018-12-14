@@ -17,12 +17,36 @@ import java.util.ArrayList;
 public class Vehiculo extends Agente{
     
     protected int rango ;
-    protected int fuel ;
+    protected int fuelrate ;
     protected boolean fly ;
     protected Casilla posicion ;
     protected ArrayList<Integer> scanner ;
     protected AgentID id_servidor ;
     protected AgentID id_burocrata ;
+    
+    
+    //Variables de estado del vehículo
+    protected boolean ayuda;
+    protected boolean refuel;
+    protected int estado;
+    /**
+     * @Nota: Los valores que actualmente tenemos encuenta son:
+     *  0 ---> Vehiculo explorando.
+     *  1 ---> Vehículo pide ayuda.
+     *     El vehículo percibe que su siguiente movimiento es opuesto al 
+     *      al movimiento anterior. Ello conlleva que no percibirá nada nuevo.
+     *  2 ---> Vehículo inactivo.
+     *     El vehículo esta parado, no espera ser ayudado, ni está en destino
+     *      este estado lo induce el burócrata para indicarle que no se mueva
+     *      o porque hay otro vehñiculo en sus percepciones y espera a que éste 
+     *      salga de estas.
+     *  3 ---> Vehículo está en destino.
+     *     El vehículo está parado, pero puede ser usado por el burócrata para
+     *      ayudar a otro vehículo.
+     *  4 ---> Vehículo CRACHEADO
+     *     No se mueve, ni tiene posibilidad de moverse,
+     *      pero sigue logueado en el mapa.
+     */
     
     /**
      * Variable innecesaria pero útil para reutilizarla en cada comparativa
@@ -36,6 +60,11 @@ public class Vehiculo extends Agente{
         this.id_burocrata = id_burocrata ;
         conversationID = "";
         performativa_adecuada = false;
+        ayuda = false;
+        refuel = false;
+        
+        // 0] Explorando, 1] Ayuda, 2] Inactivo, 3] Meta, 4] CRACHEADO
+        estado = 0;
 
     }
     
@@ -108,7 +137,7 @@ public class Vehiculo extends Agente{
          * Provisionalmente implemento la opción2.
          */
         mensaje = new JsonObject();
-        mensaje.add("fuelrate", fuel );
+        mensaje.add("fuelrate", fuelrate );
         enviarMensaje(id_burocrata, ACLMessage.INFORM, conversationID);
         
         System.out.println(this.toString());
@@ -148,11 +177,27 @@ public class Vehiculo extends Agente{
                         + print(mensajeEntrada));
         }
         
-        if(performativa_adecuada) pedir_percepciones();
-        else System.out.println(
-                "\n ERROR performativa inesperada "
-                + print(mensajeEntrada));
+        if(performativa_adecuada) 
+            pedir_percepciones();
         
+        else System.out.println(
+                "\n ERROR performativa inesperada: "
+                + print(mensajeEntrada));   
+        
+        /**
+         * @Nota: En este momento debe tener el vehículo la primera percepción
+         *  del mapa, por tanto debe enviárselas al burócrata para que actualice
+         *  el mapa que contiene.
+         *  Cómo vehículo ha sido el último en recibir un mensaje,
+         *  no hay problemas de interbloqueo porque no espera recibir mensajes
+         *  del controlador ni del burócrata, porque tanto burñocrata como el 
+         *  controlador está ahora esperando a recibir un mensaje.
+         */
+        boolean percepciones_enviadas = enviar_percepciones();
+        if(percepciones_enviadas) System.out.println(
+                " Percepciones enviadas al burócrata ");
+        else System.out.println(
+                " ERROR en el envio de las percepciones al burócrata");     
     }
     
     /**
@@ -210,7 +255,7 @@ public class Vehiculo extends Agente{
                     System.out.println(" Aceptada petición de CHECKIN ");
                     JsonObject capabilities = mensaje.get("capabilities").asObject();
                     rango = capabilities.get("range").asInt();
-                    fuel = capabilities.get("fuelrate").asInt();
+                    fuelrate = capabilities.get("fuelrate").asInt();
                     fly = capabilities.get("fly").asBoolean();
                     resultado = true ;
                     break;
@@ -231,6 +276,7 @@ public class Vehiculo extends Agente{
         return resultado;
 
     }
+    
     /**
      * @author: Germán
      * Método que encapsula la rutina de pedir al controlador las percepciones.
@@ -253,6 +299,45 @@ public class Vehiculo extends Agente{
         
         replyWith = mensajeEntrada.getReplyWith();
         
+    }
+    
+    private boolean enviar_percepciones(){
+        boolean resultado = false;        
+        JsonObject result = mensaje.get("result").asObject();
+        
+        // Valores percibidos en el mapa
+        result.add("percepciones", result.get("sensor"));
+        
+        // Rango de visión, importante para actualizar el mapa 
+        result.add("rango", rango );
+        
+        // Posición del vehículo, importante para situar las percepciones
+        // en el mapa
+        result.add("x", result.get("x"));
+        result.add("y", result.get("y"));
+        
+        /**
+         * Pide ayuda cuando percibe que el movimiento anterior y 
+         *  el actual a realizar son opuestos.
+         * @IMPORTANTE decidir en este momento el movimiento a realizar ahora.
+         */ 
+        result.add("ayuda", ayuda);
+        
+        // Estado del vehículo, importante para el burócrata 
+        // para tomar sus decisiones. 
+        result.add("estado", estado);
+        
+        // Pide permiso para realizar refuel.
+        refuel = result.get("battery").asInt() <= fuelrate;
+        result.add("refuel", refuel);
+        if(refuel){
+            //Espera respusta del burócrata para saber qué movimiento realizar
+        }
+        
+        result.add("energy", result.get("energy"));
+        result.add("destino", result.get("goal"));
+        
+        return resultado;
     }
     protected void explorar() {}
     
@@ -2159,7 +2244,7 @@ public class Vehiculo extends Agente{
     private void toStringAtributos () {
         System.out.println("ultimo mensaje de entrada (checkin)" + mensajeEntrada.toString());
         System.out.println("atributos : " 
-                + "fuel :" + fuel
+                + "fuel :" + fuelrate
                 + "rango :" + rango
                 + "fly :" + fly);
     }
