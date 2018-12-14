@@ -245,8 +245,8 @@ public class Burocrata extends Agente{
                equipo += mensaje.get("fuelrate");
                
                if(informa)
-                   System.out.println(
-                       "Agente: " 
+                   System.out.println("["+ this.getAid().getLocalName()+"]"
+                       + "Agente: " 
                        + mensajeEntrada.getSender().getLocalName()
                        + " resistrado");   
            }
@@ -261,14 +261,98 @@ public class Burocrata extends Agente{
        
        for(int i=0; i<vehiculos_activos; i++){
            mensaje = new JsonObject();
-           mensaje.add("result", "OK");
+           mensaje.add("result", "OK, ya está el equipo completo registrado.");
            enviarMensaje(agentID_vehiculos.get(i), ACLMessage.INFORM, conversationID);
        }
        
-        System.out.println("AHORA TOCA pedir las percepciones de los vehiculos "
-        + " al controlador y esperar a recibir el scanner de cada uno ");
        
-        System.out.println(this.toString());
+       /**
+        * En este momento los vehículos pueden pedir las percepciones del mapa
+        * al controlador y es el burócrata quien está a la espera de recibir 
+        * dichas percepciones para actualizar el mapa que gestiona.
+        */
+       
+       for(int i=0; i< vehiculos_activos; i++){
+           recibirMensaje();
+           
+           if(informa) System.out.println(
+                   "["+ this.getAid().getLocalName() + "]"
+                   + "\n Mensaje recibido: \n" 
+                   +print(mensajeEntrada));
+           /**
+            * En este momento tomo el sensor y actualizo el mapa con la 
+            *  información que contiene.
+            *  VERIFICO que se ha aportado nueva inforamación,
+            *   en caso contrario induzco al vehículo a que pare su actividad.
+            *  ¿Cómo?
+            *  @Opción1: Le envio un mensaje diciéndole que no se mueva y por 
+            *   ende queda a la espera de un nuevo mensaje.
+            * 
+            *  @Opcion2: No le envio mensaje de respuesta para que no inicie
+            *   el movimiento siguiente.
+            * @IMPORTANTE: Ver PRIMERO el estado del vehículo, porque resume
+            * parte de su situación y sería de interés para actualizar el mapa 
+            * o no ya que en los estados distintos de 0] explorando, no aporta
+            * información al mapa y no necesita el burócrata deducirlo, pues 
+            * ya está indicado en el estado del vehículo.
+            */
+           
+           /**
+            * Tras actualizar el mapa, el burócrata mira las demás percepciones.
+            *  En caso de percibir que el veículo quiere ayuda.
+            *   El burócrata puede decidir enviar otro vehículo a explorar 
+            *    las cercanías o indicarle algunas coordenadas hacia donde
+            *    dirigirse el para explorar los alrededores.
+            *  En caso de pedir refuel.
+            *   El burócrata cotejará la energía que hay para verificar que se
+            *    puede realizar el refuel, mandándole el mensaje de realizar
+            *    refuel.
+            *  En caso de cambio de estado del vehículo de 0] explorando
+            *   a otro estado de inactividad, el burócrata debe decrementar 
+            *   el indicador de vehiculos_activos y almacenar el agentID
+            *   de dicho vehículo para poder reactivarlo en caso de no estar 
+            *   en modo CHASH
+            * 
+            * @IMPORTANTE, se ha visto que en cada situación el burócrata
+            * debe enviar un mensaje distinto.
+            * La cuestión es cuando enviar dichi mensaje de respuesta.
+            * enviarlo de forma inmediata al recibir las percepciones hace 
+            * entrar al vehículo en otra fase de comunicación. Pudiendo esta
+            * interferir en el actual diálogo que tiene el burócrata con los
+            * demás vehículos.
+            * Por tanto creo conveniente responder a cada vehículo despues 
+            * de haber recibido todas las percepciones, ello implica tener
+            * una estructura que almacene durante la actualización del mapa
+            * la situación de cada vehiculo y procesar dicha estructura
+            * para configurar cada mensaje a enviar.
+            */
+       }
+       
+       /**
+        * @Nota: Ahora mismo, para comprobar que la comunicación es acorde
+        * y no existe interbloqueos envio un mensaje genérico a cada vehiculo
+        * mostrando el mensaje "OK, haz lo que debas hacer".
+        */
+       for(int i=0; i<vehiculos_activos; i++){
+           mensaje = new JsonObject();
+           mensaje.add("result","OK, haz lo que debas hacer");
+           enviarMensaje(agentID_vehiculos.get(i), ACLMessage.INFORM, conversationID);
+       }
+       
+       /**
+        * Ahora es el momento donde los vehículos envían al controlador la 
+        *  decisión que han tomado en base a sus sensores.
+        * Por tanto el burócrata solo le queda esperar percepciones y enviar
+        *  indicaciones según el estado de cada vehículo.
+        * Por tanto el burócrata entra en un estad de escucha interminable
+        * hasta que los vehiculos_activos sean 0
+        *  Esto ocurre cuando todos llegan al destino,
+        *  o cuando algunos llegan al destino y otros se han CRASHEADO
+        *  o se les ha inducido inactividad.
+        */
+       System.out.println(this.toString());
+        
+        
     }
     
     /**
@@ -324,7 +408,6 @@ public class Burocrata extends Agente{
         
         recibirMensaje();
         conversationID = mensajeEntrada.getConversationId();
-        System.out.println("conversationID: "+ conversationID);
     }
     
     private void obtenerMapa(){
