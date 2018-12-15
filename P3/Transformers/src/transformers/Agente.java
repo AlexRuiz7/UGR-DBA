@@ -128,6 +128,14 @@ public class Agente extends SingleAgent {
         return true;
     }
     
+    /**
+     * @author: Germán
+     * Función axiliar que encapsula la copia del contenido del mensaje Json
+     * @return 
+     */
+    protected JsonObject copiarMensaje(){
+        return Json.parse(mensaje.asString()).asObject();
+    }
     
     /**
      * @author: Germán
