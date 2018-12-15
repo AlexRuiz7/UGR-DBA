@@ -176,11 +176,11 @@ public class Vehiculo extends Agente{
          */
         
         recibirMensaje();
-        performativa_adecuada = "OK".equals(mensaje.get("result").asString());
+        performativa_adecuada = mensaje.get("result").asString().contains("OK");
         if(informa)
             if(performativa_adecuada){
                 System.out.println(
-                    "[" + this.getAid().getLocalName() + "] "
+                    " [" + this.getAid().getLocalName() + "] "
                     +"Confirmación, todo el equipo está logueado. ");
             }
             else{
@@ -337,24 +337,24 @@ public class Vehiculo extends Agente{
         enviarMensaje(id_burocrata, ACLMessage.INFORM, conversationID);
         if(informa){
             System.out.println(
-                "["+ this.getAid().getLocalName() + "]"
+                " ["+ this.getAid().getLocalName() + "]"
                 + "\n Mensaje de salida: " +print(mensajeSalida));
 
             System.out.println(
-                "["+ this.getAid().getLocalName() + "]"
+                " ["+ this.getAid().getLocalName() + "]"
                 + "\n Esperando confirmación del burócrata:");
         }
         recibirMensaje();
         
         if(informa){
             System.out.println(
-                "["+ this.getAid().getLocalName() + "]"
+                " ["+ this.getAid().getLocalName() + "]"
                 + "\n Recibida la confirmación");
         }
         
-        resultado = mensaje.get("result").asString().equals("OK");
+        resultado = mensaje.get("result").asString().contains("OK");
         if(informa)
-            System.out.println("Resultado de la Actualización: "+ resultado);
+            System.out.println(" Resultado de la Actualización: "+ resultado);
         
         return resultado;
     }
