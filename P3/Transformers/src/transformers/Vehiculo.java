@@ -63,7 +63,11 @@ public class Vehiculo extends Agente{
         ayuda = false;
         refuel = false;
         
-        // 0] Explorando, 1] Ayuda, 2] Inactivo, 3] Meta, 4] CRACHEADO
+        /** 
+         * 0] Explorando, 1] Esperando instrucciones, 
+         * 2] Ayuda,      3] Meta, 
+         * 4] NO hay energía para repostar, 5] CRACHEADO
+         */ 
         estado = 0;
 
     }
