@@ -32,18 +32,25 @@ public class Vehiculo extends Agente{
     /**
      * @Nota: Los valores que actualmente tenemos encuenta son:
      *  0 ---> Vehiculo explorando.
-     *  1 ---> Vehículo pide ayuda.
+     * 
+     *  1 ---> El vehiculo espera instrucciones, ya sea porque ha llegado al
+     *          destino indicado por el burócrata o porque percibe a otro agente
+     *          en sus percepciones.
+     * 
+     *  2 ---> Vehículo pide ayuda.
      *     El vehículo percibe que su siguiente movimiento es opuesto al 
      *      al movimiento anterior. Ello conlleva que no percibirá nada nuevo.
-     *  2 ---> Vehículo inactivo.
-     *     El vehículo esta parado, no espera ser ayudado, ni está en destino
-     *      este estado lo induce el burócrata para indicarle que no se mueva
-     *      o porque hay otro vehñiculo en sus percepciones y espera a que éste 
-     *      salga de estas.
+     *  
      *  3 ---> Vehículo está en destino.
      *     El vehículo está parado, pero puede ser usado por el burócrata para
      *      ayudar a otro vehículo.
-     *  4 ---> Vehículo CRACHEADO
+     * 
+     *  4 ---> Vehículo inactivo.
+     *     El vehículo esta parado, no espera ser ayudado, ni está en destino
+     *      este estado lo induce el burócrata para indicarle que no se mueva
+     *      porque no hay energía para todos los qgentes.
+     * 
+     *  5 ---> Vehículo CRACHEADO
      *     No se mueve, ni tiene posibilidad de moverse,
      *      pero sigue logueado en el mapa.
      */
@@ -65,8 +72,8 @@ public class Vehiculo extends Agente{
         
         /** 
          * 0] Explorando, 1] Esperando instrucciones, 
-         * 2] Ayuda,      3] Meta, 
-         * 4] NO hay energía para repostar, 5] CRACHEADO
+         * 2] Ayuda,      3] Estoy en destino, 
+         * 4] NO tengo energía para continuar, 5] CRACHEADO
          */ 
         estado = 0;
 
@@ -306,7 +313,7 @@ public class Vehiculo extends Agente{
     }
     
     private boolean enviar_percepciones(){
-        boolean resultado =false;       
+        boolean resultado;       
         
         /**
          * Pide ayuda cuando percibe que el movimiento anterior y 
@@ -350,6 +357,7 @@ public class Vehiculo extends Agente{
         
         return resultado;
     }
+   
     protected void explorar() {}
     
     
