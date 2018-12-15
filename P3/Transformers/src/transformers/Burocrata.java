@@ -50,7 +50,7 @@ public class Burocrata extends Agente{
      * @throws Exception 
      */
     private void inicializar(String nombreServidor, String nombreMapa,
-            ArrayList<AgentID> vehiculos) 
+            ArrayList<AgentID> aID_vehiculos) 
             throws Exception {
 //       System.out.println("\n INICIALIZACION DEL BUROCRATA");
         this.id_controlador = new AgentID(nombreServidor);
@@ -62,12 +62,12 @@ public class Burocrata extends Agente{
          */
         equipo = "";
         vehiculos_activos = 0;
-        VEHICULOS_MAX = vehiculos.size();
+        VEHICULOS_MAX = aID_vehiculos.size();
         
         
         agentID_vehiculos = new ArrayList<>();
         for(int i=0; i< VEHICULOS_MAX; i ++){
-               agentID_vehiculos.add(vehiculos.get(i));
+               agentID_vehiculos.add(aID_vehiculos.get(i));
            }
         
         /**
@@ -271,14 +271,25 @@ public class Burocrata extends Agente{
         * al controlador y es el burócrata quien está a la espera de recibir 
         * dichas percepciones para actualizar el mapa que gestiona.
         */
-       
+       int posicion;
+       int estado_actual;
        for(int i=0; i< vehiculos_activos; i++){
            recibirMensaje();
            
+           /** 
+            * Almaceno el estado del vehículo para responderle 
+            * tras la actualización del mapa, por tener mayor información
+            */ 
+           posicion = getPosicion(agentID_vehiculos, mensajeEntrada.getSender());
+           estado_actual = mensaje.get("estado").asInt();
+           estados_vehiculos[posicion] = estado_actual;
+           
            if(informa) System.out.println(
                    "["+ this.getAid().getLocalName() + "]"
-                   + "\n Mensaje recibido: \n" 
-                   +print(mensajeEntrada));
+                   + "\n Mensaje recibido del Agente: ["
+                   + mensajeEntrada.getSender().getLocalName()+"]"
+                   + " (Posición: "+ posicion +", Estado: "+ estado_actual+") "
+                   + print(mensajeEntrada));
            /**
             * En este momento tomo el sensor y actualizo el mapa con la 
             *  información que contiene.
@@ -353,6 +364,17 @@ public class Burocrata extends Agente{
        System.out.println(this.toString());
         
         
+    }
+    
+    private int getPosicion(ArrayList<AgentID> lista, AgentID agente){
+        int posicion = -1;
+        String nombre;
+        for(int i=0; i<lista.size(); i++){
+            nombre = lista.get(i).getLocalName();
+            if(nombre.equals(agente.getLocalName()))
+                posicion = i;
+        }
+        return posicion;
     }
     
     /**
