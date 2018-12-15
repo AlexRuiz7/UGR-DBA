@@ -17,7 +17,8 @@ import java.util.ArrayList;
 public class Vehiculo extends Agente{
     
     protected int rango ;
-    protected int fuelrate ;
+    protected int fuelrate ; // cuanto gasto en cada movimiento
+    protected int fuel ; // cuanta bateria o fuel me queda
     protected boolean fly ;
     protected Casilla posicion ;
     protected ArrayList<Integer> scanner ;
@@ -2226,37 +2227,43 @@ public class Vehiculo extends Agente{
     
     
     private boolean refuel() {
-        enviarMensaje(id_servidor,ACLMessage.REQUEST, conversationID);
-        recibirMensaje();
         
         boolean resultado = false ;
-        int performativa = mensajeEntrada.getPerformativeInt();
+            
+        if (pedir_refuel()) {
+            enviarMensaje(id_servidor,ACLMessage.REQUEST, conversationID);
+            recibirMensaje();
         
-        switch(performativa){
-            case ACLMessage.INFORM:
-                System.out.println(" Aceptada petición de hacer refuel ");
-                resultado = true ;               
-                break;
+            int performativa = mensajeEntrada.getPerformativeInt();
+        
+            switch(performativa){
+                case ACLMessage.INFORM:
+                    System.out.println(" Refuel realizado correctamente ");
+                    resultado = true ;
+                    fuel = 100 ;
+                    break;
                 
-            case ACLMessage.NOT_UNDERSTOOD:
-                System.out.println(" No entiendo lo que quieres. ");
-                System.out.println(" Detalles: " + mensaje.get("details"));
-                break;
+                case ACLMessage.NOT_UNDERSTOOD:
+                    System.out.println(" No entiendo lo que quieres. ");
+                    System.out.println(" Detalles: " + mensaje.get("details"));
+                    break;
                 
-            case ACLMessage.REFUSE:
-                System.out.println(" No entiendo lo que quieres. ");
-                System.out.println(" Detalles: " + mensaje.get("details"));
-                break;
+                case ACLMessage.REFUSE:
+                    System.out.println(" No entiendo lo que quieres. ");
+                    System.out.println(" Detalles: " + mensaje.get("details"));
+                    break;
                 
-            default:
-                System.out.println(
+                default:
+                    System.out.println(
                         " Se ha recibido la performativa: " 
                         + performativa);
-                break;    
+                    break;    
+            }
+ 
         }
         
         return resultado ;
-
+        
     }
     
     
