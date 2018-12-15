@@ -38,6 +38,7 @@ public class Burocrata extends Agente{
     
 //    private String[] conversationID_vehiculos ;
     private int[] estados_vehiculos ;
+    private ArrayList<JsonObject> mensaje_vehiculos;
     private int tamanio_mapa ;
     
     /**
@@ -66,10 +67,13 @@ public class Burocrata extends Agente{
         
         
         agentID_vehiculos = new ArrayList<>();
+        mensaje_vehiculos = new ArrayList<>();
+        
         for(int i=0; i< VEHICULOS_MAX; i ++){
                agentID_vehiculos.add(aID_vehiculos.get(i));
+               mensaje_vehiculos.add(new JsonObject());
            }
-        
+        estados_vehiculos =new  int[4];
         /**
          * Necesario para crear el nombre del archivo que contendrá la traza
          */
@@ -284,6 +288,7 @@ public class Burocrata extends Agente{
            estado_actual = mensaje.get("estado").asInt();
            estados_vehiculos[posicion] = estado_actual;
            
+           
            if(informa) System.out.println(
                    "["+ this.getAid().getLocalName() + "]"
                    + "\n Mensaje recibido del Agente: ["
@@ -366,6 +371,18 @@ public class Burocrata extends Agente{
         
     }
     
+    /**
+     * @author: Germán
+     * Función auxiliar para encontrar el AgentID del vehículo en el ArrayList
+     *  Motivo, Almacenar la situación actual del vehículo y responderle tras
+     *   el proceso de actualización del mapa, para tener más información para 
+     *   la toma de decisiónes.
+     * @param lista   Lugar donde buscar al agente
+     * @param agente  Agente a buscar
+     * @return        Devuelve la posición donde se encientra el agente.
+     * 
+     * @POS Devuelve -1, si el agente a buscar no se ha encontrado.
+     */
     private int getPosicion(ArrayList<AgentID> lista, AgentID agente){
         int posicion = -1;
         String nombre;
