@@ -209,7 +209,20 @@ public class Vehiculo extends Agente{
         if(percepciones_enviadas) System.out.println(
                 " Percepciones enviadas al burócrata ");
         else System.out.println(
-                " ERROR en el envio de las percepciones al burócrata");     
+                " ERROR en el envio de las percepciones al burócrata");
+        
+        /**
+         * Ahora debo procesar el contenido del mensaje de burócrata 
+         * para saber si:
+         *  - Explorar
+         *  - Dirgirme a algún lugar
+         *  - Esperar a recibir nuevo mensaje de actuación.
+         *  - Dejar de moverme. Ya sea por CRASHED o porque se me ha denegado
+         *    el refuel.
+         * Tras saber mi situación actualizo mi estado.
+         * y en base a éste decido el movimiento a realizar.
+         * y se lo comunico al controlador (en caso de ser moveXX o refuel)
+         */
     }
     
     /**
@@ -349,17 +362,6 @@ public class Vehiculo extends Agente{
         }
         
         resultado = mensaje.get("result").asString().contains("OK");
-        /**
-         * Ahora debo procesar el contenido del mensaje 
-         * para saber si:
-         *  - Explorar
-         *  - Dirgirme a algún lugar
-         *  - Esperar a recibir nuevo mensaje de actuación.
-         *  - Dejar de moverme. Ya sea por CRASHED o porque se me ha denegado
-         *    el refuel.
-         * Tras saber mi situación actualizo mi estado.
-         * y en base a éste decido el comportamiento a realizar.
-         */
         if(informa)
             System.out.println(" Resultado de la Actualización: "+ resultado);
         
