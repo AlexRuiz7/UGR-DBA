@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package transformers;
 
 import com.eclipsesource.json.JsonArray;
@@ -23,7 +18,7 @@ import javax.imageio.ImageIO;
  *
  * @author Germán, Alvaro
  */
-public class Burocrata extends Agente{
+public class Burocrata extends Agente {
 
     private AgentID id_controlador;
     private String nombreMapa;
@@ -38,7 +33,7 @@ public class Burocrata extends Agente{
     
 //    private String[] conversationID_vehiculos ;
     private int[] estados_vehiculos ;
-    private int tamanio_mapa ;
+    private int tam_mapa ;
     
     /**
      * @author: Germán
@@ -49,33 +44,32 @@ public class Burocrata extends Agente{
      * @param nombreMapa:     Nombre del mapa a explorar
      * @throws Exception 
      */
-    private void inicializar(String nombreServidor, String nombreMapa,
-            ArrayList<AgentID> vehiculos) 
-            throws Exception {
-//       System.out.println("\n INICIALIZACION DEL BUROCRATA");
-        this.id_controlador = new AgentID(nombreServidor);
-        conversationID = "";
-        
-        /**
-         * Hasta que no se realice el chekin por parte de los exploradores
-         * no se conoce la configuración de equipo.
-         */
-        equipo = "";
-        vehiculos_activos = 0;
-        VEHICULOS_MAX = vehiculos.size();
-        
-        
-        agentID_vehiculos = new ArrayList<>();
-        for(int i=0; i< VEHICULOS_MAX; i ++){
-               agentID_vehiculos.add(vehiculos.get(i));
-           }
-        
-        /**
-         * Necesario para crear el nombre del archivo que contendrá la traza
-         */
-        this.nombreMapa = nombreMapa;
-        this.rutaFichero = "";
-    }
+    private void inicializar(String nombreServidor, String nombreMapa, ArrayList<AgentID> vehiculos) 
+        throws Exception {
+    //       System.out.println("\n INICIALIZACION DEL BUROCRATA");
+            this.id_controlador = new AgentID(nombreServidor);
+            conversationID = "";
+
+            /**
+             * Hasta que no se realice el check-in por parte de los exploradores
+             * no se conoce la configuración de equipo.
+             */
+            equipo = "";
+            vehiculos_activos = 0;
+            VEHICULOS_MAX = vehiculos.size();
+
+
+            agentID_vehiculos = new ArrayList<>();
+            for(int i=0; i< VEHICULOS_MAX; i ++){
+                   agentID_vehiculos.add(vehiculos.get(i));
+               }
+
+            /**
+             * Necesario para crear el nombre del archivo que contendrá la traza
+             */
+            this.nombreMapa = nombreMapa;
+            this.rutaFichero = "";
+        }
     /**
      * @author: Germán
      * Constructor donde no se explicita querer ser informado 
@@ -87,9 +81,8 @@ public class Burocrata extends Agente{
      * @param vehiculos
      * @throws Exception 
      */
-    public Burocrata(AgentID aID, String nombreServidor,
-            ArrayList<AgentID> vehiculos, String nombreMapa
-            )
+    public Burocrata(AgentID aID, String nombreServidor, ArrayList<AgentID> vehiculos, 
+            String nombreMapa)
         throws Exception{
             super(aID, false);
             inicializar(nombreServidor, nombreMapa, vehiculos);
@@ -106,13 +99,11 @@ public class Burocrata extends Agente{
      * @param informa:        Con valor TRUE informa de toda comunicación.
      * @throws Exception 
      */
-    public Burocrata(AgentID aID, String nombreServidor,
-            ArrayList<AgentID> vehiculos, String nombreMapa, 
-            boolean informa)
-        throws Exception{
-           super(aID, informa);
+    public Burocrata(AgentID aID, String nombreServidor, ArrayList<AgentID> vehiculos, 
+            String nombreMapa, boolean informa) throws Exception{
            
-           inicializar(nombreServidor, nombreMapa, vehiculos);
+        super(aID, informa);
+        inicializar(nombreServidor, nombreMapa, vehiculos);
     }
     
     
@@ -238,32 +229,32 @@ public class Burocrata extends Agente{
          *  simbolizando que "Ok, he recibido tus capabilities "
          * 
          */
-       for(int i = 0; i<VEHICULOS_MAX; i++){
+        for(int i = 0; i<VEHICULOS_MAX; i++){
            recibirMensaje();
-           if(mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM){
+            if(mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM){
                vehiculos_activos++;
                equipo += mensaje.get("fuelrate");
                
                if(informa)
-                   System.out.println("["+ this.getAid().getLocalName()+"]"
+                    System.out.println("["+ this.getAid().getLocalName()+"]"
                        + "Agente: " 
                        + mensajeEntrada.getSender().getLocalName()
                        + " resistrado");   
-           }
-           else{
-               System.out.println(
+            }
+            else{
+                System.out.println(
                        " Se ha recibido la performativa: " 
                         + mensajeEntrada.getPerformativeInt());
-           }    
-       }
+            }    
+        }
        
-       if(informa) System.out.println(" El equipo es: "+ equipo);
+        if(informa) System.out.println(" El equipo es: "+ equipo);
        
-       for(int i=0; i<vehiculos_activos; i++){
+        for(int i=0; i<vehiculos_activos; i++){
            mensaje = new JsonObject();
            mensaje.add("result", "OK, ya está el equipo completo registrado.");
            enviarMensaje(agentID_vehiculos.get(i), ACLMessage.INFORM, conversationID);
-       }
+        }
        
        
        /**
@@ -601,4 +592,26 @@ public class Burocrata extends Agente{
     private void getTrazaAnterior(){}
         
     private void dirigeteA(Casilla c){}
+    
+    
+    
+    
+    
+    
+    /*************************************************************************/
+    /*
+        Tareas de Alex
+    */
+    /*************************************************************************/
+    
+    private void pathFinder() {
+        
+    }
+    
+    
+    private void quadTree() {
+        
+    }
+    
+    
 }
