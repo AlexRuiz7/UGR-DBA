@@ -45,18 +45,25 @@ public class Vehiculo extends Agente {
     /**
      * @Nota: Los valores que actualmente tenemos encuenta son:
      *  0 ---> Vehiculo explorando.
-     *  1 ---> Vehículo pide ayuda.
+     * 
+     *  1 ---> El vehiculo espera instrucciones, ya sea porque ha llegado al
+     *          destino indicado por el burócrata o porque percibe a otro agente
+     *          en sus percepciones.
+     * 
+     *  2 ---> Vehículo pide ayuda.
      *     El vehículo percibe que su siguiente movimiento es opuesto al 
      *      al movimiento anterior. Ello conlleva que no percibirá nada nuevo.
-     *  2 ---> Vehículo inactivo.
-     *     El vehículo esta parado, no espera ser ayudado, ni está en destino
-     *      este estado lo induce el burócrata para indicarle que no se mueva
-     *      o porque hay otro vehñiculo en sus percepciones y espera a que éste 
-     *      salga de estas.
+     *  
      *  3 ---> Vehículo está en destino.
      *     El vehículo está parado, pero puede ser usado por el burócrata para
      *      ayudar a otro vehículo.
-     *  4 ---> Vehículo CRACHEADO
+     * 
+     *  4 ---> Vehículo inactivo.
+     *     El vehículo esta parado, no espera ser ayudado, ni está en destino
+     *      este estado lo induce el burócrata para indicarle que no se mueva
+     *      porque no hay energía para todos los qgentes.
+     * 
+     *  5 ---> Vehículo CRACHEADO
      *     No se mueve, ni tiene posibilidad de moverse,
      *      pero sigue logueado en el mapa.
      */
@@ -76,7 +83,11 @@ public class Vehiculo extends Agente {
         ayuda = false;
         refuel = false;
         
-        // 0] Explorando, 1] Ayuda, 2] Inactivo, 3] Meta, 4] CRACHEADO
+        /** 
+         * 0] Explorando, 1] Esperando instrucciones, 
+         * 2] Ayuda,      3] Estoy en destino, 
+         * 4] NO tengo energía para continuar, 5] CRACHEADO
+         */ 
         estado = 0;
         
         
@@ -183,10 +194,10 @@ public class Vehiculo extends Agente {
          */
         
         recibirMensaje();
-        performativa_adecuada = "OK".equals(mensaje.get("result").asString());
+        performativa_adecuada = mensaje.get("result").asString().contains("OK");
         if(informa)
             if(performativa_adecuada){
-                System.out.println("[" + this.getAid().getLocalName() + "] "
+                System.out.println(" [" + this.getAid().getLocalName() + "] "
                     +"Confirmación, todo el equipo está logueado. ");
             }
             else{
@@ -212,7 +223,20 @@ public class Vehiculo extends Agente {
         if(percepciones_enviadas) System.out.println(
                 " Percepciones enviadas al burócrata ");
         else System.out.println(
-                " ERROR en el envio de las percepciones al burócrata");     
+                " ERROR en el envio de las percepciones al burócrata");
+        
+        /**
+         * Ahora debo procesar el contenido del mensaje de burócrata 
+         * para saber si:
+         *  - Explorar
+         *  - Dirgirme a algún lugar
+         *  - Esperar a recibir nuevo mensaje de actuación.
+         *  - Dejar de moverme. Ya sea por CRASHED o porque se me ha denegado
+         *    el refuel.
+         * Tras saber mi situación actualizo mi estado.
+         * y en base a éste decido el movimiento a realizar.
+         * y se lo comunico al controlador (en caso de ser moveXX o refuel)
+         */
     }
     
     /**
@@ -318,14 +342,13 @@ public class Vehiculo extends Agente {
     }
     
     private boolean enviar_percepciones(){
-        boolean resultado =false;       
+        boolean resultado;       
         
         /**
          * Pide ayuda cuando percibe que el movimiento anterior y 
          *  el actual a realizar son opuestos.
          * @IMPORTANTE decidir en este momento el movimiento a realizar ahora.
          */ 
-        mensaje.add("ayuda", ayuda);
         
         // Estado del vehículo, importante para el burócrata 
         // para tomar sus decisiones. 
@@ -334,34 +357,32 @@ public class Vehiculo extends Agente {
         // Pide permiso para realizar refuel.
         refuel = mensaje.get("result").asObject().get("battery").asInt() <= consumo;
         mensaje.add("refuel", refuel);
-        if(refuel){
-            //Espera respusta del burócrata para saber qué movimiento realizar
-        }
         
         enviarMensaje(id_burocrata, ACLMessage.INFORM, conversationID);
         if(informa){
             System.out.println(
-                "["+ this.getAid().getLocalName() + "]"
+                " ["+ this.getAid().getLocalName() + "]"
                 + "\n Mensaje de salida: " +print(mensajeSalida));
 
             System.out.println(
-                "["+ this.getAid().getLocalName() + "]"
+                " ["+ this.getAid().getLocalName() + "]"
                 + "\n Esperando confirmación del burócrata:");
         }
         recibirMensaje();
         
         if(informa){
             System.out.println(
-                "["+ this.getAid().getLocalName() + "]"
-                + "\n Recibida la confirmación");
+                " ["+ this.getAid().getLocalName() + "]"
+                + "\n Recibido mensaje tras la actualización del mapa ");
         }
         
-        resultado = mensaje.get("result").asString().equals("OK");
+        resultado = mensaje.get("result").asString().contains("OK");
         if(informa)
-            System.out.println("Resultado de la Actualización: "+ resultado);
+            System.out.println(" Resultado de la Actualización: "+ resultado);
         
         return resultado;
     }
+   
     protected void explorar() {}
     
     

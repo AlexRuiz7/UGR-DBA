@@ -8,7 +8,7 @@ import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
 
 /**
- * @author Germán, Alvaro, Alex
+ * @author Alex
  */
 public class Agente_v2 extends SingleAgent {
     
