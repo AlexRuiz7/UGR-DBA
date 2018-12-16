@@ -321,7 +321,6 @@ public class Vehiculo extends Agente{
          *  el actual a realizar son opuestos.
          * @IMPORTANTE decidir en este momento el movimiento a realizar ahora.
          */ 
-        mensaje.add("ayuda", ayuda);
         
         // Estado del vehículo, importante para el burócrata 
         // para tomar sus decisiones. 
@@ -330,9 +329,6 @@ public class Vehiculo extends Agente{
         // Pide permiso para realizar refuel.
         refuel = mensaje.get("result").asObject().get("battery").asInt() <= fuelrate;
         mensaje.add("refuel", refuel);
-        if(refuel){
-            //Espera respusta del burócrata para saber qué movimiento realizar
-        }
         
         enviarMensaje(id_burocrata, ACLMessage.INFORM, conversationID);
         if(informa){
@@ -349,10 +345,21 @@ public class Vehiculo extends Agente{
         if(informa){
             System.out.println(
                 " ["+ this.getAid().getLocalName() + "]"
-                + "\n Recibida la confirmación");
+                + "\n Recibido mensaje tras la actualización del mapa ");
         }
         
         resultado = mensaje.get("result").asString().contains("OK");
+        /**
+         * Ahora debo procesar el contenido del mensaje 
+         * para saber si:
+         *  - Explorar
+         *  - Dirgirme a algún lugar
+         *  - Esperar a recibir nuevo mensaje de actuación.
+         *  - Dejar de moverme. Ya sea por CRASHED o porque se me ha denegado
+         *    el refuel.
+         * Tras saber mi situación actualizo mi estado.
+         * y en base a éste decido el comportamiento a realizar.
+         */
         if(informa)
             System.out.println(" Resultado de la Actualización: "+ resultado);
         
