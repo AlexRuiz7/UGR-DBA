@@ -39,7 +39,7 @@ public class Burocrata extends Agente{
 //    private String[] conversationID_vehiculos ;
     private ArrayList<AgentID> agentID_vehiculos;
     private int[] estados_vehiculos ;
-    private ArrayList<JsonObject> mensaje_vehiculos;
+    private ArrayList<JsonObject> percepciones_vehiculos;
     private ArrayList<Integer> dorsales ;
     private ArrayList<Integer> espectros ;
     
@@ -70,11 +70,11 @@ public class Burocrata extends Agente{
         
         
         agentID_vehiculos = new ArrayList<>();
-        mensaje_vehiculos = new ArrayList<>();
+        percepciones_vehiculos = new ArrayList<>();
         
         for(int i=0; i< VEHICULOS_MAX; i ++){
                agentID_vehiculos.add(aID_vehiculos.get(i));
-               mensaje_vehiculos.add(new JsonObject());
+               percepciones_vehiculos.add(new JsonObject());
            }
         estados_vehiculos = new  int[4];
         
@@ -83,12 +83,12 @@ public class Burocrata extends Agente{
          *   - su espectro de visión
          */
         dorsales = new ArrayList<>();
-        dorsales.add(0xFF0000); dorsales.add(0x00FF00);
-        dorsales.add(0x0000FF); dorsales.add(0x00FFFF);
+        dorsales.add(0xFF0000); dorsales.add(0x00cc00);
+        dorsales.add(0x0000FF); dorsales.add(0xFF00FF);
         
         espectros = new ArrayList<>();
-        espectros.add(0xFFdddd); espectros.add(0xddFFdd);
-        espectros.add(0xe3FFdd); espectros.add(0xddFFFF);
+        espectros.add(0xFFcccc); espectros.add(0xccFFcc);
+        espectros.add(0xccccFF); espectros.add(0xFFccFF);
         
         /**
          * Necesario para crear el nombre del archivo que contendrá la traza
@@ -346,22 +346,53 @@ public class Burocrata extends Agente{
                        + mensajeEntrada.getSender().getLocalName()
                        + "]");
            }
+           
+           /**
+            * En este momento mediante la variable 'posicion' puedo identificar
+            *  en qué lugar del array agentID_agentes se encuantra el
+            *  vehículo actual con ello he podido extraer su estado he inclirlo
+            *  en el array 'estados_vehiculos' y lo mismo haré ahora con 
+            *  la variable percepciones, es decir,
+            *  uso 'posicion' para modificar el contenido del mensaje que hay
+            *  en percepciones_vehiculos, para su posterios tratamiento al 
+            *  terminar de actualizar el mapa.
+            */
+           percepciones_vehiculos.set(posicion, percepciones);
+           
+           // Percepciones dentro del bucle.
+           if(informa)
+               System.out.println(" Percepciones de ["
+                   + mensajeEntrada.getSender().getLocalName() 
+                   +"] dentro del bucle for "
+                   + percepciones.toString());
 
        }
        
+       // Percepciones fuera del bucle for 
+       for(int i = 0; i< vehiculos_activos && informa; i++){
+               System.out.println(
+                   "\n Agente: "+ agentID_vehiculos.get(i).getLocalName()
+                 + "\n Estado: "+ estados_vehiculos[i]
+                 + "\n Percepciones obtenidas: "
+                 + "\n\t " + percepciones_vehiculos.get(i).toString());
+               
+       }
        try {
             /**
              * En este momento el mapa está actualizado, por tanto
              *  debe realizarse una imagen png para capturar la situación actual.
              */
              iteracion_actual++;
-             capturaSituacion();
+             capturaSituacion(); 
+             
              /**
               * Tras actualizar el mapa, el burócrata mira las demás percepciones.
+              *  como el estado y el refuel de cada vehículo y para ello hará uso
+              *  del atrubuto percepciones_vehiculos 
               *  En caso de percibir que el veículo quiere ayuda.
               *   El burócrata puede decidir enviar otro vehículo a explorar
               *    las cercanías o indicarle algunas coordenadas hacia donde
-              *    dirigirse el para explorar los alrededores.
+              *    dirigirse para explorar los alrededores.
               *  En caso de pedir refuel.
               *   El burócrata cotejará la energía que hay para verificar que se
               *    puede realizar el refuel, mandándole el mensaje de realizar
@@ -372,7 +403,7 @@ public class Burocrata extends Agente{
               *   de dicho vehículo para poder reactivarlo en caso de no estar
               *   en modo CHASH
               *
-              * @IMPORTANTE, se ha visto que en cada situación el burócrata
+              * @Reflexión, se ha visto que en cada situación el burócrata
               * debe enviar un mensaje distinto.
               * La cuestión es cuando enviar dicho mensaje de respuesta.
               * enviarlo de forma inmediata al recibir las percepciones hace
@@ -388,6 +419,45 @@ public class Burocrata extends Agente{
             } catch (IOException ex) {
                 Logger.getLogger(Burocrata.class.getName()).log(Level.SEVERE, null, ex);
             }
+       
+       /**
+        * PASOS a seguir para procesar las percepciones almacenadas durante la
+        *  actualización del mapa.
+        *   1º] Recorrer el array de percepciones  o de estados
+        *        para ver el estado de cada vehículo.
+        *       Ello nos indicará los agentes actualmente activos.
+        * 
+        *   2º] Buscar el vehículo que pida refuel y comprobar si hay enegía 
+        *        para ello. (En este momento no entro en complejidades,
+        *        si hay energía se envía mensaje de confirmación)
+        *   
+        *   3º] Buscar el vehículo que necesita ayuda y decidir enviar a 
+        *        otro en su auxilio.
+        *   @NOTA: ¿Puede un vehículo que pide refuel ser enviado a ayudar?
+        *     Sería la opción más efectiva. ¿Cómo hacerlo?
+        *     Con varior recorridos, rellenando los campos de forma sistemática.
+        *      El primero para saber los vehículos activos
+        *      La segunda para confirmar refuel o no.
+        *      La tercera para seleccionar al vehículo candidato a ayudar
+        *      La cuarta para indicar a donde debe dirigirse cada vehículo.
+        *       Aclaracion: 
+        *        - No enviar coordenadas a los vehiculos activos significa 
+        *           que pueden seguir explorando.
+        *        - No enviar un mensaje al vehículo que pide ayuda provocaría
+        *           una situación de riego de interbloqueo.
+        *           ¿Cuando indicarle a dicho vehiculo que se puede mover?
+        *           Mejor enviarle sus coordenadas para indicarle 
+        *           que no se mueva.
+        *        - Enviarle una coordenadas al vehiculo seleccionado para ayudar
+        *           Pero ¿Que estado debería tener desde que empieza la ayuda
+        *           hasta que llega?
+        *           Y cuando llega al destino ¿Qué estado debe tener?
+        * 
+        *        
+        *        
+        */
+       
+       
        
        /**
         * @Nota: Ahora mismo, para comprobar que la comunicación es acorde
