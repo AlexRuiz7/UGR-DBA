@@ -28,18 +28,20 @@ public class Burocrata extends Agente{
     private AgentID id_controlador;
     private String nombreMapa;
     private String equipo;
-    private ArrayList<AgentID> agentID_vehiculos;
     private int vehiculos_activos;
     private int VEHICULOS_MAX;
     
     private BufferedImage mapa;
     private String rutaFichero;
+    private int iteracion_actual;
 
     
 //    private String[] conversationID_vehiculos ;
+    private ArrayList<AgentID> agentID_vehiculos;
     private int[] estados_vehiculos ;
     private ArrayList<JsonObject> mensaje_vehiculos;
-    private int tamanio_mapa ;
+    private ArrayList<Integer> dorsales ;
+    private ArrayList<Integer> espectros ;
     
     /**
      * @author: Germán
@@ -56,6 +58,7 @@ public class Burocrata extends Agente{
 //       System.out.println("\n INICIALIZACION DEL BUROCRATA");
         this.id_controlador = new AgentID(nombreServidor);
         conversationID = "";
+        iteracion_actual= 0;
         
         /**
          * Hasta que no se realice el chekin por parte de los exploradores
@@ -73,7 +76,20 @@ public class Burocrata extends Agente{
                agentID_vehiculos.add(aID_vehiculos.get(i));
                mensaje_vehiculos.add(new JsonObject());
            }
-        estados_vehiculos =new  int[4];
+        estados_vehiculos = new  int[4];
+        
+        /** Colores para representar:
+         *   - la ubicación de cada vehículo
+         *   - su espectro de visión
+         */
+        dorsales = new ArrayList<>();
+        dorsales.add(0xFF0000); dorsales.add(0x00FF00);
+        dorsales.add(0x0000FF); dorsales.add(0x00FFFF);
+        
+        espectros = new ArrayList<>();
+        espectros.add(0xFFdddd); espectros.add(0xddFFdd);
+        espectros.add(0xe3FFdd); espectros.add(0xddFFFF);
+        
         /**
          * Necesario para crear el nombre del archivo que contendrá la traza
          */
@@ -277,24 +293,26 @@ public class Burocrata extends Agente{
         */
        int posicion;
        int estado_actual;
+       JsonObject percepciones;
+       
        for(int i=0; i< vehiculos_activos; i++){
            recibirMensaje();
            
            /** 
             * Almaceno el estado del vehículo para responderle 
-            * tras la actualización del mapa, por tener mayor información
+            * tras la actualización del mapa, pues tendré más información.
             */ 
            posicion = getPosicion(agentID_vehiculos, mensajeEntrada.getSender());
            estado_actual = mensaje.get("estado").asInt();
            estados_vehiculos[posicion] = estado_actual;
-           
-           
+                   
            if(informa) System.out.println(
                    "["+ this.getAid().getLocalName() + "]"
                    + "\n Mensaje recibido del Agente: ["
                    + mensajeEntrada.getSender().getLocalName()+"]"
                    + " (Posición: "+ posicion +", Estado: "+ estado_actual+") "
                    + print(mensajeEntrada));
+           
            /**
             * En este momento tomo el sensor y actualizo el mapa con la 
             *  información que contiene.
@@ -312,37 +330,64 @@ public class Burocrata extends Agente{
             * información al mapa y no necesita el burócrata deducirlo, pues 
             * ya está indicado en el estado del vehículo.
             */
+           percepciones = mensaje.get("result").asObject();
            
-           /**
-            * Tras actualizar el mapa, el burócrata mira las demás percepciones.
-            *  En caso de percibir que el veículo quiere ayuda.
-            *   El burócrata puede decidir enviar otro vehículo a explorar 
-            *    las cercanías o indicarle algunas coordenadas hacia donde
-            *    dirigirse el para explorar los alrededores.
-            *  En caso de pedir refuel.
-            *   El burócrata cotejará la energía que hay para verificar que se
-            *    puede realizar el refuel, mandándole el mensaje de realizar
-            *    refuel.
-            *  En caso de cambio de estado del vehículo de 0] explorando
-            *   a otro estado de inactividad, el burócrata debe decrementar 
-            *   el indicador de vehiculos_activos y almacenar el agentID
-            *   de dicho vehículo para poder reactivarlo en caso de no estar 
-            *   en modo CHASH
-            * 
-            * @IMPORTANTE, se ha visto que en cada situación el burócrata
-            * debe enviar un mensaje distinto.
-            * La cuestión es cuando enviar dichi mensaje de respuesta.
-            * enviarlo de forma inmediata al recibir las percepciones hace 
-            * entrar al vehículo en otra fase de comunicación. Pudiendo esta
-            * interferir en el actual diálogo que tiene el burócrata con los
-            * demás vehículos.
-            * Por tanto creo conveniente responder a cada vehículo despues 
-            * de haber recibido todas las percepciones, ello implica tener
-            * una estructura que almacene durante la actualización del mapa
-            * la situación de cada vehiculo y procesar dicha estructura
-            * para configurar cada mensaje a enviar.
-            */
+           if(actualizarMapa(
+                   mensajeEntrada.getSender(),
+                   percepciones.get("sensor").asArray(),
+                   percepciones.get("x").asInt(),
+                   percepciones.get("y").asInt())){
+               System.out.println(" Mapa actualizado con datos de "
+                       + "["+ mensajeEntrada.getSender().getLocalName()+"]");
+           }
+           else{
+               System.out.println(" Error al actualizar el mapa "
+                       + "con los datos de ["
+                       + mensajeEntrada.getSender().getLocalName()
+                       + "]");
+           }
+
        }
+       
+       try {
+            /**
+             * En este momento el mapa está actualizado, por tanto
+             *  debe realizarse una imagen png para capturar la situación actual.
+             */
+             iteracion_actual++;
+             capturaSituacion();
+             /**
+              * Tras actualizar el mapa, el burócrata mira las demás percepciones.
+              *  En caso de percibir que el veículo quiere ayuda.
+              *   El burócrata puede decidir enviar otro vehículo a explorar
+              *    las cercanías o indicarle algunas coordenadas hacia donde
+              *    dirigirse el para explorar los alrededores.
+              *  En caso de pedir refuel.
+              *   El burócrata cotejará la energía que hay para verificar que se
+              *    puede realizar el refuel, mandándole el mensaje de realizar
+              *    refuel.
+              *  En caso de cambio de estado del vehículo de 0] explorando
+              *   a otro estado de inactividad, el burócrata debe decrementar
+              *   el indicador de vehiculos_activos y almacenar el agentID
+              *   de dicho vehículo para poder reactivarlo en caso de no estar
+              *   en modo CHASH
+              *
+              * @IMPORTANTE, se ha visto que en cada situación el burócrata
+              * debe enviar un mensaje distinto.
+              * La cuestión es cuando enviar dicho mensaje de respuesta.
+              * enviarlo de forma inmediata al recibir las percepciones hace
+              * entrar al vehículo en otra fase de comunicación. Pudiendo esta
+              * interferir en el actual diálogo que tiene el burócrata con los
+              * demás vehículos.
+              * Por tanto creo conveniente responder a cada vehículo después
+              * de haber recibido todas las percepciones, ello implica tener
+              * una estructura que almacene durante la actualización del mapa
+              * la situación de cada vehiculo y procesar dicha estructura
+              * para configurar cada mensaje a enviar.
+              */
+            } catch (IOException ex) {
+                Logger.getLogger(Burocrata.class.getName()).log(Level.SEVERE, null, ex);
+            }
        
        /**
         * @Nota: Ahora mismo, para comprobar que la comunicación es acorde
@@ -392,6 +437,135 @@ public class Burocrata extends Agente{
                 posicion = i;
         }
         return posicion;
+    }
+    
+    /**
+     * @author: Germán
+     * Método que encapsula la actualización del mapa
+     * Pasos:
+     *  1º] Calcula el rango de visión a partir del tamaño del sensor.
+     *  2º] Determina el vehículo que es mediante su agentID
+     *  3º] Se determina el color asignado al agente mediante si agentID
+     *  4º] Cada color tiene un espectro asociado.
+     *       He llamado espectro a la región de mapa vislumbrada.
+     *  5º] Se transladan las coodenadas para ajustarlas al mapa png
+     *  6º] Se realiza la actualización del mapa verificando que el dato
+     *       del sensor es: 0, 1, 2, 3, 4
+     *       en caso contrario respondería con -1 dando por fallida la
+     *       actualización.
+     *  7º] Se actualiza la posición donde se encuentra el vehículo con 
+     *       su color asignado.
+     * @IMPORTANTE Tras actualizar el mapa debe realizarse un archivo png
+     *  para mostrar la situación actual.
+     */
+    private boolean actualizarMapa(AgentID agente, JsonArray sensor,
+            int coordenadaX, int coordenadaY){
+        boolean resultado = true;
+        
+        int rango = (int) Math.sqrt(sensor.size());
+        System.out.println("["+ agente.getLocalName()+"]"
+                + "\n Rango de visión: " + rango);
+        
+        /**
+         * Dadas las coordenadas y el rango de visión, es posible
+         * rellenar la sección de mapa vislumbrada.
+         */
+        int pos = getPosicion(agentID_vehiculos, agente);
+        int x0 = coordenada(coordenadaX, rango);
+        int y0 = coordenada(coordenadaY, rango);
+        int tono;
+        for(int c=0; c<rango && resultado; c++){
+            for(int f=0; f<rango && resultado; f++){
+                tono = color(pos, sensor.get(c+f*rango).asInt());
+                if(tono != -1)
+                    mapa.setRGB( x0+c, y0+f, tono);
+                else
+                    resultado = false;
+            }
+        }
+
+        return resultado;
+    }
+    /**
+     * @author: Germán
+     * Método auxiliar para situar las coordenadas del vehículo correctamente
+     *  en el mapa png, pues el tamaño real es 110x110 pixeles
+     *  y el area de acción es de 100x100
+     *  donde las coordenadas recibidas van de (0,0) a (99,99)
+     *  cuando en el png eso implica (5,5) a (104, 104)
+     *  Motivo, cuando se reciben la coordenadas de posición (37, 0)
+     *   NO se puede rellenar correctamente el png pues 
+     *   por debajo de 0 no se puede, pero el vehículo percibe más allá
+     *  ¿Por qué? Por el desplazamiento de las coordenadas.
+     *   Recibir (37, 0) significa que estamos situados en (42, 5);
+     *   por lo que ya si es posible rellenar bien el mapa.
+     * @param numero
+     * @param rango
+     * @return 
+     */
+    private int coordenada(int numero, int rango){
+        int coordenada_inicial = -1;
+        switch(rango){
+            case 3:
+                coordenada_inicial = numero + 4;
+                break;
+            case 5:
+                coordenada_inicial = numero + 3;
+                break;
+            case 11:
+                coordenada_inicial = numero;
+                break;
+            default:
+                coordenada_inicial = -1;
+                break;
+        }
+        return coordenada_inicial;
+    }
+    
+    /**
+     * @author: Germán
+     * Método auxiliar que conmuta entre dos representaciones:
+     *  - La representación del profesor: 
+     *    0 libre, 1 obstáculo, 2 muro, 3 destino, 4 agente
+     *  - La representación en png de los valores del profesor:
+     *    0xffffff libre, 0x000000 obstáculo,
+     *    0x000000 muro , 0xff0000 destino, 0xffffff agente.
+     *  - Se pretende cambiar la representación libre por un color 
+     *  similar al que posee el agente para indicar el rastro que ha seguido
+     *  durante su exploración.
+     */
+    private int color(int pos, int valor_sensor){
+        int resultado;
+        switch(valor_sensor){
+            case 0:
+                resultado = espectros.get(pos);
+                break;
+            case 1:
+            case 2:
+                resultado = 0x000000;
+                break;
+            case 4:
+                resultado = dorsales.get(pos);
+                break;
+            case 3: 
+                resultado = 0xFF0000;
+                break;
+            default:
+                resultado = -1;
+        }
+        return resultado;
+    }
+    
+    /**
+     * author: Germán
+     * Método para crear una imagen png para capturar la situación actual del
+     * mapa
+     */
+    private boolean capturaSituacion() throws IOException{
+        String nombre_del_fichero = nombreFichero();
+        File archivo = new File(nombre_del_fichero);
+        boolean resultado =  ImageIO.write(mapa, "png", archivo);
+        return resultado;
     }
     
     /**
@@ -449,6 +623,13 @@ public class Burocrata extends Agente{
         conversationID = mensajeEntrada.getConversationId();
     }
     
+    /**
+     * @author: Germán
+     * Método que gestiona la traza de sesiones anteriores usandola como 
+     * lienzo de para la sesión actual.
+     * @IMPORANTE: Este lienzo puede contener información de irrelevante,
+     *  por ello debe limpiarse.
+     */
     private void obtenerMapa(){
         try {
             if(!cancel()){
@@ -456,11 +637,31 @@ public class Burocrata extends Agente{
                 cancel();
             }
             getTraza(true);
-            mapa = getMapa(rutaFichero, "hex");
+            mapa = getMapa("hex");
+            limpiarMapa();
             
         } catch (IOException ex) {
             Logger.getLogger(Burocrata.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    /**
+     * @author: Germán
+     * Método auxiliar que limpia el mapa que hay en memoria.
+     * @PRE: Debe haber un elemento Buffererd
+     */
+    private void limpiarMapa(){
+        int gris = 0xc0c0c0;
+        int muro = 0x000000;
+        for(int c=0; c< mapa.getWidth(); c++)
+            for(int f=0; f< mapa.getHeight(); f++){
+                if(mapa.getRGB(c, f) != gris )
+                    mapa.setRGB(c, f, gris);
+                
+// Dibuja los bordes                
+//                if(f<5 || f>104) mapa.setRGB(c, f, muro);
+//                if(c<5 || c>104) mapa.setRGB(c, f, muro);
+            }
     }
     /**
      * @author: Germán
@@ -472,23 +673,17 @@ public class Burocrata extends Agente{
      */
     private void getTraza(boolean exito){
         try {
-            String fecha = fecha();
-            String nombreFichero =nombreMapa + "__" 
-                    + equipo + " "
-                    + fecha + "_"
-                    + mensajeEntrada.getConversationId();
+            String nombreFichero = nombreFichero();
             
             if(exito){
                 /* Recibimos la respuesta del servidor */
                 recibirMensaje();
-                rutaFichero= "../" 
-                        + nombreFichero;
+                rutaFichero = nombreFichero;
             }
             else{
                 recibirMensaje();
-                rutaFichero= "../" 
-                        +"Error_traza_anterior_"
-                        +nombreFichero;
+                rutaFichero = nombreFichero
+                        +"Error_traza_anterior_";
             }
             
 //            System.out.println("Mensaje recibido, del servidor, tras el logout: " + mensaje.toString());
@@ -516,7 +711,39 @@ public class Burocrata extends Agente{
         }
     };
     
-
+    /**
+     * @author: Germán
+     * Método que encapsula la tarea de crear un nombre para el mapa png
+     * @IMPORTANTE 
+     *  Se puede usar solo para obtener la situación final de la 
+     *   exploración en el mapa.
+     *  Pero su utilidad reside en crear mun nombre distinto para cada situación
+     *   que se quiera capturar, pues agrupando todas ellas se logra visualizar
+     *   la evolución de los agentes en la exploración del mapa.
+     * 
+     * @return Devuelve un nombre (con formato específico para poder hacer gif)  
+     */
+    private String nombreFichero(){
+        // Creando carpeta contenedora de los pngs
+        String nombre_carpeta = "../mapa_";
+        File carpeta_pngs = new File(nombre_carpeta);
+        if(carpeta_pngs.mkdir()){
+            System.out.println("Directorio "+ "mapa_ "+"Creado ");
+        }
+        else{
+            System.out.println("Directorio ya existente ");
+        }
+        
+        String ruta = nombre_carpeta +"/";
+        String fecha = fecha();
+        String cadena = ruta
+                + iteracion_actual + "__"
+                + nombreMapa + "__" 
+                + equipo + " "
+                + fecha + "_"
+                + mensajeEntrada.getConversationId();
+        return cadena;
+    }
     /**
      * @author: Germán
      * Método que muestra el contenido del Mapa, en dististos formatos.
@@ -526,24 +753,30 @@ public class Burocrata extends Agente{
      * @return              : Devuelve BufferedImage 
      * @throws IOException  : Excepción que en esta versión no se controla.
      */
-    private static BufferedImage getMapa(String nombre_archivo, String tipo) throws IOException{
-        File imageFile = new File(nombre_archivo);
-        BufferedImage image = ImageIO.read(imageFile);
-        System.out.println("Características de la imagen. "
+    private BufferedImage getMapa(String tipo) throws IOException{
+        if(rutaFichero != ""){
+            File imageFile = new File(rutaFichero);
+            BufferedImage image = ImageIO.read(imageFile);
+            System.out.println("Características de la imagen. "
                 + "\n Tipo:    " + image.getType()
                 + "\n Altura:  " + image.getHeight()
                 + "\n Anchura: " + image.getWidth());
-        
-        int hex;
-        for(int c=0; c<image.getWidth(); c++){
-            for(int f = 0; f<image.getHeight(); f++){
-                hex = image.getRGB(f,c);
-                
-                System.out.print(conversor(hex, tipo) + " ");
+             
+            int hex;
+            for(int c=0; c<image.getWidth(); c++){
+                for(int f = 0; f<image.getHeight(); f++){
+                    hex = image.getRGB(f,c);
+                    System.out.print(conversor(hex, tipo) + " ");
+                }
+                System.out.println("");
             }
-            System.out.println("");
-        } 
-        return image;
+            return image;
+        }
+        else{
+            System.out.println("\n NO HAY RUTA !!! ");
+            return null;
+        }
+        
     }
     
     /**
