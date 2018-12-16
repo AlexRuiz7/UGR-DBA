@@ -33,27 +33,40 @@ public class Vehiculo extends Agente{
     /**
      * @Nota: Los valores que actualmente tenemos encuenta son:
      *  0 ---> Vehiculo explorando.
+     *         (ACTIVO, candidato para ayudar)
      * 
-     *  1 ---> El vehiculo espera instrucciones, ya sea porque ha llegado al
-     *          destino indicado por el burócrata o porque percibe a otro agente
-     *          en sus percepciones.
+     *  1 ---> El vehículo está explorando en dirección a una coordenadas 
+     *          indicadas por el burócrata, percibe el entorno e informa, pero
+     *          no es candidato para ser selecionado para ayudar a otro agente.
+     *         (ACTIVO, pero ocupado ayudando)
      * 
-     *  2 ---> Vehículo pide ayuda.
-     *     El vehículo percibe que su siguiente movimiento es opuesto al 
-     *      al movimiento anterior. Ello conlleva que no percibirá nada nuevo.
-     *  
+     *  2 ---> El vehiculo espera instrucciones, ya sea porque acabda de llegar
+     *          al destino indicado por el burócrata 
+     *          o porque percibe a otro agente en sus percepciones.
+     *         (ACTIVO, candidato para ayudar)
+     * 
      *  3 ---> Vehículo está en destino.
-     *     El vehículo está parado, pero puede ser usado por el burócrata para
-     *      ayudar a otro vehículo.
+     *          El vehículo está parado, pero puede ser usado por el burócrata
+     *           para ayudar a otro vehículo.
+     *          (INACTIVO, pero candidato para ayudar) 
      * 
-     *  4 ---> Vehículo inactivo.
-     *     El vehículo esta parado, no espera ser ayudado, ni está en destino
-     *      este estado lo induce el burócrata para indicarle que no se mueva
-     *      porque no hay energía para todos los qgentes.
+     *  4 ---> Vehículo pide ayuda.
+     *          El vehículo percibe que su siguiente movimiento es opuesto 
+     *           al movimiento anterior.
+     *           Ello conlleva que no percibirá nada nuevo.
+     *          (INACTIVO, pero activable)
      * 
-     *  5 ---> Vehículo CRACHEADO
-     *     No se mueve, ni tiene posibilidad de moverse,
-     *      pero sigue logueado en el mapa.
+     *  5 ---> Vehículo inactivo.
+     *          El vehículo esta parado, no espera ser ayudado,
+     *           ni está en destino; este estado lo induce el burócrata
+     *           para indicarle que no se mueva porque no hay energía
+     *           para todos los vehículos.
+     *          (INACTIVO, sin posibilidad lógistica de ser ACTIVADO)
+     * 
+     *  6 ---> Vehículo CRACHEADO
+     *          No se mueve, ni tiene posibilidad de moverse,
+     *           pero sigue logueado en el mapa.
+     *          (INACTIVO, sin posibilidad de activarse)
      */
     
     /**
