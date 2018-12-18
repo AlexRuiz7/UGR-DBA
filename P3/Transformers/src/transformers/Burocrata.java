@@ -1,5 +1,6 @@
 package transformers;
 
+import transformers.utils.Casilla;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.ACLMessage;
@@ -14,9 +15,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
+
 /**
  *
- * @author Germán, Alvaro
+ * @author Germán, Alvaro, Alex
  */
 public class Burocrata extends Agente {
 
@@ -39,6 +41,8 @@ public class Burocrata extends Agente {
     private ArrayList<JsonObject> mensaje_vehiculos;
     private ArrayList<Integer> dorsales ;
     private ArrayList<Integer> espectros ;
+    
+    
     
     /**
      * @author: Germán
@@ -93,6 +97,7 @@ public class Burocrata extends Agente {
     }
 
     
+    
     /**
      * @author: Germán
      * Constructor donde no se explicita querer ser informado 
@@ -110,6 +115,9 @@ public class Burocrata extends Agente {
             super(aID, false);
             inicializar(nombreServidor, nombreMapa, vehiculos);
     }
+    
+    
+    
     /**
      * @author: Germán
      * Constructor donde se indica explicitamente el deseo de ser informado 
@@ -128,6 +136,7 @@ public class Burocrata extends Agente {
         super(aID, informa);
         inicializar(nombreServidor, nombreMapa, vehiculos);
     }
+    
     
     
     /**
@@ -406,9 +415,9 @@ public class Burocrata extends Agente {
         *  o se les ha inducido inactividad.
         */
        System.out.println(this.toString());
-        
-        
     }
+    
+    
     
     /**
      * @author: Germán
@@ -432,6 +441,8 @@ public class Burocrata extends Agente {
         }
         return posicion;
     }
+    
+    
     
     /**
      * @author: Germán
@@ -480,6 +491,9 @@ public class Burocrata extends Agente {
 
         return resultado;
     }
+    
+    
+    
     /**
      * @author: Germán
      * Método auxiliar para situar las coordenadas del vehículo correctamente
@@ -515,6 +529,8 @@ public class Burocrata extends Agente {
         }
         return coordenada_inicial;
     }
+    
+    
     
     /**
      * @author: Germán
@@ -562,6 +578,8 @@ public class Burocrata extends Agente {
         return resultado;
     }
     
+    
+    
     /**
      * @author: Germán
      * Método que encapsula la rutina de cancelar la suscripción al mapa.
@@ -601,6 +619,9 @@ public class Burocrata extends Agente {
         return resultado;
         
     }
+    
+    
+    
     /**
      * Método que encapsula la rutina de suscribirse a un mapa
      * @author: Germán
@@ -616,6 +637,8 @@ public class Burocrata extends Agente {
         recibirMensaje();
         conversationID = mensajeEntrada.getConversationId();
     }
+    
+    
     
     /**
      * @author: Germán

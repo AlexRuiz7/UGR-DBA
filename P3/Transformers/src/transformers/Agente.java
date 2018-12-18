@@ -1,18 +1,13 @@
 package transformers;
 
 
-
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 
 /**
  * @author Germán, Alvaro
@@ -31,6 +26,8 @@ public class Agente extends SingleAgent {
     // Variable necesaria para continual una conversación. 
     protected String replyWith;
     protected String conversationID;
+    
+    
     
     /**
      * Método que inicializa los atributos 
@@ -56,6 +53,8 @@ public class Agente extends SingleAgent {
         System.out.println("\n Agente "+this.getAid().getLocalName()+" creado");
     }
     
+    
+    
     /**
      * @author: Germán
      * Constructor donde no se explicita querer ser informado 
@@ -67,6 +66,8 @@ public class Agente extends SingleAgent {
         super(aID);
         inicializar(false);
     }
+    
+    
     
     /**
      * @author: Germán
@@ -128,6 +129,8 @@ public class Agente extends SingleAgent {
         return true;
     }
     
+    
+    
     /**
      * @author: Germán
      * Función axiliar que encapsula la copia del contenido que actualmente 
@@ -144,6 +147,8 @@ public class Agente extends SingleAgent {
     protected JsonObject copiarMensaje(){
         return Json.parse(mensaje.asString()).asObject();
     }
+    
+    
     
     /**
      * @author: Germán
@@ -182,6 +187,8 @@ public class Agente extends SingleAgent {
         }
     }
     
+    
+    
     /**
      * @author: Germán
      * Todas las conversaciones no tienen hilo conductor y para evitar 
@@ -198,6 +205,12 @@ public class Agente extends SingleAgent {
         enviarMensaje(destinatario, performativa, conversationID, "");
     }
     
+    
+    
+    /**
+     * 
+     * @return 
+     */
     @Override
     public String toString(){
         String atributos = "\n Estado interno de "
@@ -211,6 +224,13 @@ public class Agente extends SingleAgent {
         return atributos;
     }
     
+    
+    
+    /**
+     * 
+     * @param contenido_del_mensaje
+     * @return 
+     */
     protected String print(ACLMessage contenido_del_mensaje){
         String contenido =
                   "\n\t Emisor:         "
