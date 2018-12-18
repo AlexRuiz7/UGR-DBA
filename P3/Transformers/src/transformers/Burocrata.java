@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package transformers;
 
 import com.eclipsesource.json.JsonArray;
@@ -23,7 +18,7 @@ import javax.imageio.ImageIO;
  *
  * @author Germán, Alvaro
  */
-public class Burocrata extends Agente{
+public class Burocrata extends Agente {
 
     private AgentID id_controlador;
     private String nombreMapa;
@@ -57,10 +52,9 @@ public class Burocrata extends Agente{
      * @param nombreMapa:     Nombre del mapa a explorar
      * @throws Exception 
      */
-    private void inicializar(String nombreServidor, String nombreMapa,
-            ArrayList<AgentID> aID_vehiculos) 
-            throws Exception {
-//       System.out.println("\n INICIALIZACION DEL BUROCRATA");
+    private void inicializar(String nombreServidor, String nombreMapa, ArrayList<AgentID> vehiculos) 
+        throws Exception {
+    //       System.out.println("\n INICIALIZACION DEL BUROCRATA");
         this.id_controlador = new AgentID(nombreServidor);
         conversationID = "";
         iteracion_actual= 0;
@@ -71,8 +65,7 @@ public class Burocrata extends Agente{
          */
         equipo = "";
         vehiculos_activos = 0;
-        VEHICULOS_MAX = aID_vehiculos.size();
-        
+        VEHICULOS_MAX = vehiculos.size();
         
         agentID_vehiculos = new ArrayList<>();
         percepciones_vehiculos = new ArrayList<>();
@@ -83,7 +76,7 @@ public class Burocrata extends Agente{
         vehiculos_en_movimiento = 0;
         
         for(int i=0; i< VEHICULOS_MAX; i ++){
-               agentID_vehiculos.add(aID_vehiculos.get(i));
+               agentID_vehiculos.add(agentID_vehiculos.get(i));
                
                estados_vehiculos.add(-1);
                refuel_vehiculos.add(false);
@@ -110,6 +103,8 @@ public class Burocrata extends Agente{
         this.nombreMapa = nombreMapa;
         this.rutaFichero = "";
     }
+
+    
     /**
      * @author: Germán
      * Constructor donde no se explicita querer ser informado 
@@ -121,9 +116,8 @@ public class Burocrata extends Agente{
      * @param vehiculos
      * @throws Exception 
      */
-    public Burocrata(AgentID aID, String nombreServidor,
-            ArrayList<AgentID> vehiculos, String nombreMapa
-            )
+    public Burocrata(AgentID aID, String nombreServidor, ArrayList<AgentID> vehiculos, 
+            String nombreMapa)
         throws Exception{
             super(aID, false);
             inicializar(nombreServidor, nombreMapa, vehiculos);
@@ -140,13 +134,11 @@ public class Burocrata extends Agente{
      * @param informa:        Con valor TRUE informa de toda comunicación.
      * @throws Exception 
      */
-    public Burocrata(AgentID aID, String nombreServidor,
-            ArrayList<AgentID> vehiculos, String nombreMapa, 
-            boolean informa)
-        throws Exception{
-           super(aID, informa);
+    public Burocrata(AgentID aID, String nombreServidor, ArrayList<AgentID> vehiculos, 
+            String nombreMapa, boolean informa) throws Exception{
            
-           inicializar(nombreServidor, nombreMapa, vehiculos);
+        super(aID, informa);
+        inicializar(nombreServidor, nombreMapa, vehiculos);
     }
     
     
@@ -282,7 +274,7 @@ public class Burocrata extends Agente{
        int fuelrate;
        for(int i = 0; i<VEHICULOS_MAX; i++){
            recibirMensaje();
-           if(mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM){
+            if(mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM){
                vehiculos_activos++;
                vehiculos_en_movimiento++;
                fuelrate = mensaje.get("fuelrate").asInt();
@@ -292,19 +284,20 @@ public class Burocrata extends Agente{
                fuelrate_vehiculos.set(pos, fuelrate);
                
                if(informa)
-                   System.out.println("["+ this.getAid().getLocalName()+"]"
+                    System.out.println("["+ this.getAid().getLocalName()+"]"
                        + "Agente: " 
                        + mensajeEntrada.getSender().getLocalName()
                        + " resistrado");   
+
            }
            else{
                System.out.println(
                        "\n Performativa distina a INFORM mientras recibo las "
                        + " capacidades de los agentes"
                        + "\n Se ha recibido la performativa: " 
-                        + mensajeEntrada.getPerformativeInt());
-           }    
-       }
+                       + mensajeEntrada.getPerformativeInt());
+            }    
+        }
        
        if(informa) System.out.println(" El equipo es: "+ equipo);
            
@@ -312,7 +305,7 @@ public class Burocrata extends Agente{
            mensaje = new JsonObject();
            mensaje.add("result", "OK, ya está el equipo completo registrado.");
            enviarMensaje(agentID_vehiculos.get(i), ACLMessage.INFORM, conversationID);
-       }
+        }
        
        
        /**
@@ -1492,4 +1485,26 @@ public class Burocrata extends Agente{
     private void getTrazaAnterior(){}
         
     private void dirigeteA(Casilla c){}
+    
+    
+    
+    
+    
+    
+    /*************************************************************************/
+    /*
+        Tareas de Alex
+    */
+    /*************************************************************************/
+    
+    private void pathFinder() {
+        
+    }
+    
+    
+    private void quadTree() {
+        
+    }
+    
+    
 }
