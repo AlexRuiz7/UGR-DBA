@@ -10,5 +10,15 @@ package transformers;
  * @author Germán
  */
 public class Casilla {
+    public final int X;
+    public final int Y;
     
+    public Casilla(int coord_X, int coord_Y) {
+        X = coord_X;
+        Y = coord_Y;
+    }
+    
+    public String toString(){
+        return "[X, Y] : [" + X + ", " + Y +"]";
+    }
 }

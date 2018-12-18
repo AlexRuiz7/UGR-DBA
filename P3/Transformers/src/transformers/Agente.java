@@ -132,13 +132,9 @@ public class Agente extends SingleAgent {
      * @author: Germán
      * Función axiliar que encapsula la copia del contenido que actualmente 
      * se encuentra en el atributo mensaje.
-     * Pensado para poder contestar a cada vehículo de forma personalizada
+     * Pensado para poder almacenar el contenido ahora
+     * y poder contestar a cada vehículo de forma personalizada
      *  después de actualizar el mapa. 
-     * Ello ofrece la oportunidad de buscar el vehículo que 
-     *  necesita ayuda y buscar el vehículo que puede ofrecerle
-     *  dicha ayuda. Pues en este momento todos ellos esperan un
-     *  mensaje y desde mi opinión es el momento ideal para
-     *  pensar la estrategía de cooperación.
      * @return Devuelve una copia del contenido del mensaje actual. 
      */
     protected JsonObject copiarMensaje(){

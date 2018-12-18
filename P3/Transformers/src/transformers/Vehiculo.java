@@ -9,6 +9,7 @@ import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import java.util.ArrayList;
+import org.apache.xmlbeans.impl.xb.xsdschema.AllDocument;
 
 /**
  *
@@ -30,40 +31,50 @@ public class Vehiculo extends Agente{
     protected boolean ayuda;
     protected boolean refuel;
     protected int estado;
+    protected JsonObject mensaje_anterior;
     /**
      * @Nota: Los valores que actualmente tenemos encuenta son:
      *  0 ---> Vehiculo explorando.
      *         (ACTIVO, candidato para ayudar)
      * 
-     *  1 ---> El vehículo está explorando en dirección a una coordenadas 
-     *          indicadas por el burócrata, percibe el entorno e informa, pero
-     *          no es candidato para ser selecionado para ayudar a otro agente.
-     *         (ACTIVO, pero ocupado ayudando)
+     *  * ---> El vehículo está explorando en dirección a una coordenadas 
+     *          indicadas por el burócrata para ayudar,
+     *          percibe el entorno e informa, pero
+     *         (ACTIVO, candidato para ayudar)
+     *         (Nueva versión: si hay más de un vehículo pidiendo ayuda
+     *          se le darán las coordenadas del más cero para que lo ayude
+     *          en cada iteración)
      * 
-     *  2 ---> El vehiculo espera instrucciones, ya sea porque acabda de llegar
+     *  * ---> El vehiculo espera instrucciones, ya sea porque acaba de llegar
      *          al destino indicado por el burócrata 
      *          o porque percibe a otro agente en sus percepciones.
-     *         (ACTIVO, candidato para ayudar)
+     *         @Nota: Podemos tomar como protocolo que un vehículo al llegar
+     *          vislumbrar a las coordenadas indicadas por dirigete_a,
+     *          éste toma el estado 'en destino' (si se ha llegado a destino)
+     *          o 'explorando'
+     *         Eso permite quitar este estado.
+     *         (INCATIVO, candidato para ayudar)
      * 
-     *  3 ---> Vehículo está en destino.
+     *  1 ---> Vehículo está en destino.
      *          El vehículo está parado, pero puede ser usado por el burócrata
      *           para ayudar a otro vehículo.
      *          (INACTIVO, pero candidato para ayudar) 
+     *          (En esta versión no se contempla usarlo para ayudar)
      * 
-     *  4 ---> Vehículo pide ayuda.
+     *  2 ---> Vehículo pide ayuda.
      *          El vehículo percibe que su siguiente movimiento es opuesto 
      *           al movimiento anterior.
      *           Ello conlleva que no percibirá nada nuevo.
      *          (INACTIVO, pero activable)
      * 
-     *  5 ---> Vehículo inactivo.
+     *  3 ---> Vehículo inactivo.
      *          El vehículo esta parado, no espera ser ayudado,
      *           ni está en destino; este estado lo induce el burócrata
      *           para indicarle que no se mueva porque no hay energía
      *           para todos los vehículos.
      *          (INACTIVO, sin posibilidad lógistica de ser ACTIVADO)
      * 
-     *  6 ---> Vehículo CRACHEADO
+     *  4 ---> Vehículo CRACHEADO
      *          No se mueve, ni tiene posibilidad de moverse,
      *           pero sigue logueado en el mapa.
      *          (INACTIVO, sin posibilidad de activarse)
@@ -85,11 +96,12 @@ public class Vehiculo extends Agente{
         refuel = false;
         
         /** 
-         * 0] Explorando, 1] Esperando instrucciones, 
-         * 2] Ayuda,      3] Estoy en destino, 
-         * 4] NO tengo energía para continuar, 5] CRACHEADO
+         * 0] Explorando, 1] Estoy en destino,
+         * 2] Ayuda,       
+         * 3] NO tengo energía para continuar, 4] CRACHEADO
          */ 
         estado = 0;
+        mensaje_anterior = new JsonObject();
 
     }
     
@@ -125,7 +137,7 @@ public class Vehiculo extends Agente{
          *  (que es la respuesta del controlador al checkin),
          *  necesario para la siguiente petición con el controlador.
          */
-        replyWith = mensajeEntrada.getReplyWith();
+//        replyWith = mensajeEntrada.getReplyWith();
         
         /**
          * Muestra el contenido del agente para verificar que se ha realizado 
@@ -201,13 +213,15 @@ public class Vehiculo extends Agente{
                         " Mensaje no esperado: " 
                         + print(mensajeEntrada));
         }
-        
-        if(performativa_adecuada) 
+
+        while(performativa_adecuada){
+            
             pedir_percepciones();
-        
-        else System.out.println(
-                "\n ERROR performativa inesperada: "
-                + print(mensajeEntrada));   
+            
+            /**
+             * Deben guardarse las percepciones para que no se pierda
+             *  entre los envios de mensajes
+             */
         
         /**
          * @Nota: En este momento debe tener el vehículo la primera percepción
@@ -218,12 +232,20 @@ public class Vehiculo extends Agente{
          *  del controlador ni del burócrata, porque tanto burñocrata como el 
          *  controlador está ahora esperando a recibir un mensaje.
          */
-        boolean percepciones_enviadas = enviar_percepciones();
-        if(percepciones_enviadas) System.out.println(
-                " Percepciones enviadas al burócrata ");
+        System.out.println(" Percepciones enviadas al burócrata ");
+        boolean percepciones_enviadas = 
+                enviar_percepciones();
+        if(percepciones_enviadas) 
+            System.out.println("["+this.getAid().getLocalName()+"]"
+                    +" recibida respuesta de "+ id_burocrata.getLocalName());
         else System.out.println(
                 " ERROR en el envio de las percepciones al burócrata");
         
+            System.out.println(
+                    "["+this.getAid().getLocalName()+"]"
+                    + " voy a procesar lo que me ha mandado"
+                    +"["+ mensajeEntrada.getSender().getLocalName()+"]:\n"
+                    + mensaje.toString());
         /**
          * Ahora debo procesar el contenido del mensaje de burócrata 
          * para saber si:
@@ -236,6 +258,103 @@ public class Vehiculo extends Agente{
          * y en base a éste decido el movimiento a realizar.
          * y se lo comunico al controlador (en caso de ser moveXX o refuel)
          */
+        JsonObject directrices = new JsonObject(mensaje);
+        //int x = mensaje.get("x").asInt();
+        //int y = mensaje.get("y").asInt();
+        
+        // Primero realizo refuel, de caso de haberlo pedido
+        if(directrices.toString().contains("refuel")){
+            if(directrices.get("refuel").asBoolean()){        
+                mensaje = new JsonObject();       
+                mensaje.add("command", "refuel");       
+                enviarMensaje(id_servidor, ACLMessage.REQUEST,
+                    conversationID, replyWith);        
+                recibirMensaje();
+                replyWith = mensajeEntrada.getReplyWith();
+                
+                if(mensajeEntrada.getPerformativeInt() == ACLMessage.REFUSE){
+                    estado = 3;
+                    System.out.println(this.getAid().getLocalName()
+                            +" refuel denegado ");
+                }
+                else
+                    System.out.println(this.getAid().getLocalName()
+                            +" refuel aceptado ");
+                
+            }
+        }
+        
+        /**
+         * Creo conveniente volver a pedir las percepciones,
+         *  por si he sido un vehiculo que ha estado esperando ayuda,
+         *  pues ahora mismo no percibo al vehículo que se me ha acercado.
+         */
+        if(directrices.toString().contains("dirigete_a")){   
+            if(directrices.get("dirigete_a").asBoolean()){
+                System.out.println(this.getAid().getLocalName()
+                        + " Mi estado actual es: "+ estado);
+                //pedir_percepciones();
+                System.out.println(this.getAid().getLocalName()
+                        + " Mi estado actual es: "+ estado);
+            }  
+        }
+        
+        /**
+         * Teniendo las percepciones actualizadas (en caso de haber estado
+         *  aletargado esperando ayuda)
+         *  Debo decidir el movimiento a realizar.
+         * 
+         * @Nota: por verificar a comunicación pongo un movimiento cualquiera
+         *  y proceso el resultado
+         */
+        
+       
+        System.out.println(" [" + this.getAid().getLocalName() +"]"
+                +" He decidido moverme al NORTE ");
+        mensaje = new JsonObject();
+        mensaje.add("command", "moveN");
+        enviarMensaje(id_servidor, ACLMessage.REQUEST, conversationID, replyWith);
+        
+        recibirMensaje();
+        replyWith = mensajeEntrada.getReplyWith();
+        
+        int performativa = mensajeEntrada.getPerformativeInt();
+        if(performativa == ACLMessage.INFORM){
+            estado = 0;
+            System.out.println(" Movimiento aceptado ");
+        }
+        else{
+            System.out.println(" Movimiento Denegado ");
+            estado = 4;   
+        }
+        
+        /**
+         * Debo informar del resultado del movimiento al burócrata para que
+         *  para que tenga encuenta que sigo moviendome
+         *  o que he chocado.
+         */
+        mensaje.add("estado", estado);
+        mensaje.add("refuel",refuel);
+        enviarMensaje(id_burocrata, performativa, conversationID);
+        
+        /**
+         * Esperando respuesta del burócrata para proseguir.
+         */
+        recibirMensaje();
+        
+        if(performativa != ACLMessage.INFORM)
+            while(true)
+                recibirMensaje();
+        
+//        performativa_adecuada = mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM;
+//        performativa_adecuada = mensaje.get("result").asString().contains("OK");
+        }
+/**
+ * SI el vehículo no recibe la confirmación del burócrata este no puede
+ *  seguir
+ */ 
+//        System.out.println("\n ERROR performativa inesperada: "+ print(mensajeEntrada));
+
     }
     
     /**
@@ -311,6 +430,7 @@ public class Vehiculo extends Agente{
             }
 
         }
+        replyWith = mensajeEntrada.getReplyWith();
         return resultado;
 
     }
@@ -334,50 +454,63 @@ public class Vehiculo extends Agente{
         
         recibirMensaje();
         if(informa) print(mensajeEntrada);
+        if(mensajeEntrada.getPerformativeInt() != ACLMessage.INFORM)
+            estado = 4;
         
-        replyWith = mensajeEntrada.getReplyWith();
+        if(informa)
+            System.out.println("["
+                    + this.getAid().getLocalName() 
+                    + "] (estado: "+ estado +")"
+                    + "\n Mi mensaje es: "+ mensaje.toString());
         
+        replyWith = mensajeEntrada.getReplyWith();  
     }
     
     private boolean enviar_percepciones(){
-        boolean resultado;       
+        boolean resultado;
+        // Estado del vehículo, importante para el burócrata 
+        // para tomar sus decisiones. 
         
         /**
          * Pide ayuda cuando percibe que el movimiento anterior y 
          *  el actual a realizar son opuestos.
          * @IMPORTANTE decidir en este momento el movimiento a realizar ahora.
-         */ 
-        
-        // Estado del vehículo, importante para el burócrata 
-        // para tomar sus decisiones. 
+         */
         mensaje.add("estado", estado);
+        mensaje.add("refuel", false);
         
+        int performativa = mensajeEntrada.getPerformativeInt();
+        resultado = performativa == ACLMessage.INFORM;
+        if(resultado){
         // Pide permiso para realizar refuel.
-        refuel = mensaje.get("result").asObject().get("battery").asInt() <= fuelrate;
-        mensaje.add("refuel", refuel);
-        
-        enviarMensaje(id_burocrata, ACLMessage.INFORM, conversationID);
-        if(informa){
-            System.out.println(
-                " ["+ this.getAid().getLocalName() + "]"
-                + "\n Mensaje de salida: " +print(mensajeSalida));
-
-            System.out.println(
+           refuel = mensaje.get("result").asObject().get("battery").asInt() <= fuelrate;
+           mensaje.set("refuel", refuel);
+        }
+        /**
+         * Envio el mensaje al burócrata, ya sea un INFORM o un NOT_UNDERSTOOD
+         *  junto con mi estado interno, que sería lo primero que debe
+         *  comprorbar, si quiere actualizar el mapa correctamente.
+         */
+        enviarMensaje(id_burocrata, performativa, conversationID);
+           if(informa){
+             System.out.println(
                 " ["+ this.getAid().getLocalName() + "]"
                 + "\n Esperando confirmación del burócrata:");
-        }
-        recibirMensaje();
+           }
         
-        if(informa){
+        // Esperando respuesta del burócrata
+           recibirMensaje();
+        
+           if(informa){
             System.out.println(
                 " ["+ this.getAid().getLocalName() + "]"
                 + "\n Recibido mensaje tras la actualización del mapa ");
-        }
+          }
         
-        resultado = mensaje.get("result").asString().contains("OK");
+        resultado = mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM;
+        
         if(informa)
             System.out.println(" Resultado de la Actualización: "+ resultado);
-        
         return resultado;
     }
    
