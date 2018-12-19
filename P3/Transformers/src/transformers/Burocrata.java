@@ -76,7 +76,7 @@ public class Burocrata extends Agente {
         vehiculos_en_movimiento = 0;
         
         for(int i=0; i< VEHICULOS_MAX; i ++){
-               agentID_vehiculos.add(agentID_vehiculos.get(i));
+               agentID_vehiculos.add(vehiculos.get(i));
                
                estados_vehiculos.add(-1);
                refuel_vehiculos.add(false);
@@ -277,8 +277,8 @@ public class Burocrata extends Agente {
             if(mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM){
                vehiculos_activos++;
                vehiculos_en_movimiento++;
-               fuelrate = mensaje.get("fuelrate").asInt();
-               equipo += mensaje.get("fuelrate");
+               fuelrate = mensaje.get("consumo").asInt();
+               equipo += mensaje.get("consumo");
                
                pos = getPosicion(agentID_vehiculos, mensajeEntrada.getSender());
                fuelrate_vehiculos.set(pos, fuelrate);
@@ -334,7 +334,7 @@ public class Burocrata extends Agente {
        int energia = -1;
  while (vehiculos_activos >0){
        System.out.println("VEHICULOS EN MOVIMIENTO "+ vehiculos_en_movimiento);
-       for(int i=0; i< vehiculos_en_movimiento; i++){
+       for(int i=0; i<vehiculos_en_movimiento; i++){
            // Esperando percepciones de cada vehiculo
            recibirMensaje();
            
@@ -344,6 +344,7 @@ public class Burocrata extends Agente {
             * tras la actualización del mapa, pues tendré más información.
             */ 
            posicion = getPosicion(agentID_vehiculos, mensajeEntrada.getSender());
+           System.out.println(" Candidato: " + posicion);
            estado_actual = mensaje.get("estado").asInt();
            estados_vehiculos.set(posicion, estado_actual);
            
@@ -807,24 +808,29 @@ public class Burocrata extends Agente {
            if(estado_actual == 0){
                System.out.println(mensajeEntrada.getSender().getLocalName()
                        + " SIGUE EN JUEGO");
-               vehiculos_con_objetivo.add(i);
+               vehiculos_con_objetivo.add(pos);
+               System.out.println(" Superviviente: " 
+                       +agentID_vehiculos.get(i).getLocalName()
+                       + " posición: "+ pos);
            }
            else{
                System.out.println(mensajeEntrada.getSender().getLocalName()
                        + " Ha chocado. (Un activo menos)");
            }
        }
+       for(int i=0; i<vehiculos_con_objetivo.size();i++)
+        System.out.println(" Vehiculo con objetivo:" + vehiculos_con_objetivo.get(i));
        
-       
+       vehiculos_en_movimiento = vehiculos_con_objetivo.size();
        System.out.println("\n Estados: ");
        for(int i=0; i<estados_vehiculos.size(); i++){
            System.out.print(" "+ estados_vehiculos.get(i));
        }
        System.out.println(" Vehiculos con objetivo: " + vehiculos_con_objetivo.size());
-       System.out.println(" Vehiculos en movimiento: "+ vehiculos_en_movimiento);
+       System.out.println("\n Vehiculos en movimiento: "+ vehiculos_en_movimiento);
        System.out.println("\n");
        /**
-        * Ahora es el momento de enviar la confirmación de susestados
+        * Ahora es el momento de enviar la confirmación de sus estados
         */
        for(int i=0; i<vehiculos_con_objetivo.size(); i++){
            mensaje = new JsonObject();
@@ -833,7 +839,7 @@ public class Burocrata extends Agente {
                    ACLMessage.INFORM, conversationID);
        }
        
-       vehiculos_en_movimiento = vehiculos_con_objetivo.size();
+       
        
        /**
         * Ahora es el momento donde los vehículos envían al controlador la 
