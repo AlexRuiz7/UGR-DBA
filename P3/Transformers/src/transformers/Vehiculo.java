@@ -1,10 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package transformers;
 
+import transformers.utils.Casilla;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
@@ -28,7 +24,7 @@ public class Vehiculo extends Agente {
     protected AgentID id_servidor ;
     protected AgentID id_burocrata ;
     
-    //Variables de estado del vehículo
+    // Variables de estado del vehículo
     protected boolean ayuda;
     protected boolean refuel;
     protected int estado;
@@ -96,6 +92,16 @@ public class Vehiculo extends Agente {
      */
     protected boolean performativa_adecuada;
     
+    
+    /**
+     * Constructor
+     * 
+     * @param aID
+     * @param id_servidor
+     * @param id_burocrata
+     * @param informa
+     * @throws Exception 
+     */
     public Vehiculo(AgentID aID, AgentID id_servidor, AgentID id_burocrata, boolean informa) throws Exception {
         super(aID, informa);
         this.id_servidor = id_servidor ;
@@ -115,10 +121,11 @@ public class Vehiculo extends Agente {
         
         camaradas = new ArrayList();
         bateria = 0;
-        posicion = new Casilla(0,0);
+        posicion = new Casilla(0, 0, '?');
         radar = new ArrayList();
         objetivo = false;
     }
+    
     
     /**
      * @author Alvaro
@@ -387,6 +394,8 @@ public class Vehiculo extends Agente {
 
     }
     
+    
+    
     /**
      * Método que encapsula la rutina de checkin
      * @author: Alvaro
@@ -394,7 +403,6 @@ public class Vehiculo extends Agente {
      * @return Devuelve si ha sido un éxito o no.
      */
     protected boolean checkin() {
-        
         int performativa ;
         boolean tenemos_cID = false ;
         boolean resultado = false ;
@@ -465,6 +473,8 @@ public class Vehiculo extends Agente {
 
     }
     
+    
+    
     /**
      * @author: Germán
      * Método que encapsula la rutina de pedir al controlador las percepciones.
@@ -496,6 +506,12 @@ public class Vehiculo extends Agente {
         replyWith = mensajeEntrada.getReplyWith();  
     }
     
+    
+    
+    /**
+     * 
+     * @return 
+     */
     private boolean enviar_percepciones(){
         boolean resultado;
         // Estado del vehículo, importante para el burócrata 
@@ -544,6 +560,11 @@ public class Vehiculo extends Agente {
         return resultado;
     }
    
+    
+    
+    /**
+     * 
+     */
     protected void explorar() {}
     
     
@@ -557,6 +578,7 @@ public class Vehiculo extends Agente {
     
     /**
      * Método que encapsula la rutina de pedir refuel al servidor
+     * @return 
      * @author: Alvaro
      * Método que encapsula la rutina de pedir refuel al servidor
      */
@@ -593,10 +615,13 @@ public class Vehiculo extends Agente {
         }
         
         return resultado ;
-
     }
     
     
+    /**
+     * 
+     * @return 
+     */
     private boolean refuel() {
         
         boolean resultado = false ;
@@ -638,6 +663,9 @@ public class Vehiculo extends Agente {
     }
     
     
+    /**
+     * 
+     */
     private void toStringAtributos() {
         System.out.println("ultimo mensaje de entrada (checkin)" + mensajeEntrada.toString());
         System.out.println("atributos : " 
@@ -652,6 +680,7 @@ public class Vehiculo extends Agente {
         Tareas de Alex
     */
     /*************************************************************************/
+    
     
     /**
      * Pide la informacion al servidor y actualiza su estado interno

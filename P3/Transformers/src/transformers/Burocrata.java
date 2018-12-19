@@ -1,5 +1,6 @@
 package transformers;
 
+import transformers.utils.Casilla;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.ACLMessage;
@@ -14,9 +15,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
+
 /**
  *
- * @author Germán, Alvaro
+ * @author Germán, Alvaro, Alex
  */
 public class Burocrata extends Agente {
 
@@ -45,6 +47,9 @@ public class Burocrata extends Agente {
     private ArrayList<JsonObject> percepciones_vehiculos;
     private int vehiculos_en_movimiento;
     private ArrayList<JsonObject> mensajes_respuesta;
+
+
+    
 
     /**
      * @author: Germán Método inicializador de los atributos del burócrata.
@@ -110,6 +115,10 @@ public class Burocrata extends Agente {
         this.rutaFichero = "";
     }
 
+
+    
+    
+
     /**
      * @author: Germán Constructor donde no se explicita querer ser informado de
      * toda la comunicación del agente.
@@ -127,6 +136,10 @@ public class Burocrata extends Agente {
         inicializar(nombreServidor, nombreMapa, vehiculos);
     }
 
+
+    
+    
+    
     /**
      * @author: Germán Constructor donde se indica explicitamente el deseo de
      * ser informado de toda la comunicación de este agente.
@@ -144,6 +157,10 @@ public class Burocrata extends Agente {
         super(aID, informa);
         inicializar(nombreServidor, nombreMapa, vehiculos);
     }
+
+    
+    
+    
 
     /**
      * @author: Germán Método que ejecutará el agente desde que despierta.
@@ -834,6 +851,7 @@ public class Burocrata extends Agente {
         }
     }
 
+
     /**
      * @author: Germán Función auxiliar para encontrar el AgentID del vehículo
      * en el ArrayList Motivo, Almacenar la situación actual del vehículo y
@@ -857,6 +875,11 @@ public class Burocrata extends Agente {
         return posicion;
     }
 
+
+
+    
+    
+    
     /**
      * @author: Germán Método que encapsula la actualización del mapa Pasos: 1º]
      * Calcula el rango de visión a partir del tamaño del sensor. 2º] Determina
@@ -910,6 +933,10 @@ public class Burocrata extends Agente {
         return pixeles_descubientos;
     }
 
+    
+    
+    
+
     /**
      * @author: Germán Método auxiliar para situar las coordenadas del vehículo
      * correctamente en el mapa png, pues el tamaño real es 110x110 pixeles y el
@@ -944,6 +971,10 @@ public class Burocrata extends Agente {
         return coordenada_inicial;
     }
 
+    
+    
+    
+
     /**
      * @author: Germán Método auxiliar que conmuta entre dos representaciones: -
      * La representación del profesor: 0 libre, 1 obstáculo, 2 muro, 3 destino,
@@ -975,6 +1006,11 @@ public class Burocrata extends Agente {
         return resultado;
     }
 
+    
+    
+    
+    
+    
     /**
      * @author: Germán Función auxiliar para obtener al vehículo más cercano del
      * que está pidiendo ayuda.
@@ -1031,6 +1067,11 @@ public class Burocrata extends Agente {
         return candidatoMasCercano;
     }
 
+    
+    
+    
+    
+    
     /**
      * @author Germán Función auxiliar que proporciona las coordenadas de una
      * región cercana que tiene más píxeles sin descubrir
@@ -1101,6 +1142,11 @@ public class Burocrata extends Agente {
         return coordenadas;
     }
 
+    
+    
+    
+    
+    
     /**
      * @author Germán Método auxiliar que cuenta los pixeles que aún no se han
      * descubiento al rededor de las coordenadas indicadas, con un rango de
@@ -1132,8 +1178,13 @@ public class Burocrata extends Agente {
         return cantidad;
     }
 
+    
+    
+    
+    
     /**
-     * author: Germán Método para crear una imagen png para capturar la
+     * author: Germán
+     * Método para crear una imagen png para capturar la
      * situación actual del mapa
      */
     private boolean capturaSituacion() throws IOException {
@@ -1143,9 +1194,13 @@ public class Burocrata extends Agente {
         return resultado;
     }
 
+    
+    
+    
+
     /**
-     * @author: Germán Método que encapsula la rutina de cancelar la suscripción
-     * al mapa.
+     * @author: Germán 
+     * Método que encapsula la rutina de cancelar la suscripción al mapa.
      * @return
      */
     private boolean cancel() {
@@ -1183,6 +1238,10 @@ public class Burocrata extends Agente {
 
     }
 
+    
+    
+    
+
     /**
      * Método que encapsula la rutina de suscribirse a un mapa
      *
@@ -1198,6 +1257,10 @@ public class Burocrata extends Agente {
         recibirMensaje();
         conversationID = mensajeEntrada.getConversationId();
     }
+
+    
+    
+    
 
     /**
      * @author: Germán Método que gestiona la traza de sesiones anteriores
@@ -1220,8 +1283,13 @@ public class Burocrata extends Agente {
         }
     }
 
+    
+    
+    
+    
     /**
-     * @author: Germán Método auxiliar que limpia el mapa que hay en memoria.
+     * @author: Germán
+     * Método auxiliar que limpia el mapa que hay en memoria.
      * @PRE: Debe haber un elemento Buffererd
      */
     private void limpiarMapa() {
@@ -1287,6 +1355,9 @@ public class Burocrata extends Agente {
 
     ;
     
+    
+    
+    
     /**
      * @author: Germán
      * Método que encapsula la tarea de crear un nombre para el mapa png
@@ -1320,9 +1391,13 @@ public class Burocrata extends Agente {
         return cadena;
     }
 
+    
+    
+    
     /**
-     * @author: Germán Método que muestra el contenido del Mapa, en dististos
-     * formatos. con enteros, hexadecimal o con caracteres
+     * @author: Germán 
+     * Método que muestra el contenido del Mapa, en dististos formatos,
+     *  con enteros, hexadecimal o con caracteres
      * @param nombre_archivo: Ubicación del archivo a decodificar y mostrar
      * @param tipo : Formato de presentación ("int", "hex", "string" )
      * @return : Devuelve BufferedImage
@@ -1353,8 +1428,13 @@ public class Burocrata extends Agente {
 
     }
 
+    
+    
+    
+    
     /**
-     * @author: Germán Método auxiliar dar formato a un dato entero.
+     * @author: Germán 
+     * Método auxiliar dar formato a un dato entero.
      * @param hex: Valor del entero
      * @param tipo: Tipo de representación elegida
      * @return
@@ -1405,8 +1485,13 @@ public class Burocrata extends Agente {
         return dato;
     }
 
+    
+    
+    
+    
     /**
-     * @author: Germán Método que encapsula la tarea de obtener la fecha y hora
+     * @author: Germán 
+     * Método que encapsula la tarea de obtener la fecha y hora
      * actual (solo usado para crear el nombre del archivo png que contendrá la
      * traza)
      * @return: Devuelve la fecha y la hora en un String
@@ -1425,8 +1510,12 @@ public class Burocrata extends Agente {
         return fecha;
     }
 
+    
+    
+    
     /**
-     * @author: Germán Métod para mostrar el mapa que se tiene actualmente.
+     * @author: Germán 
+     * Método para mostrar el mapa que se tiene actualmente.
      * @param tipo
      */
     private void ToStringMapa(String tipo) {
