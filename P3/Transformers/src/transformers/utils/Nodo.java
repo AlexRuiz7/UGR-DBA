@@ -14,6 +14,7 @@ public class Nodo extends Casilla{
      */
     public Nodo() {
         super(0, 0, '?');
+        f = g = h = 0;
     }
     
     
@@ -24,6 +25,7 @@ public class Nodo extends Casilla{
      */
     public Nodo(Casilla c) {
         super(c.X, c.Y, c.getTipo());
+        f = g = h = 0;
     }   
     
     

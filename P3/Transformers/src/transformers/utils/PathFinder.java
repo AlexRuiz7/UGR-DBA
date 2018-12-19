@@ -11,6 +11,7 @@
 package transformers.utils;
 
 import java.util.ArrayList;
+import java.util.Queue;
 
 /**
  * Esta clase calcula el mejor que camino (si lo hay) desde un punto origen y 
@@ -31,8 +32,8 @@ import java.util.ArrayList;
  * @author alex
  */
 public class PathFinder {
-    private ArrayList<Nodo> abiertos;
-    private ArrayList<Nodo> cerrados; 
+    private Queue<Nodo> abiertos;
+    private Queue<Nodo> cerrados; 
     private Nodo destino, origen;
     private ArrayList<Nodo> mapa;
 
@@ -45,20 +46,52 @@ public class PathFinder {
         this.destino = this.origen = new Nodo();
         this.mapa = new ArrayList();
         
-        abiertos = cerrados = new ArrayList();
+//        abiertos = cerrados = new ArrayList();
     }
     
 
     /**
+     * Para la busqueda del camino
      * 
+     * 1. Inicializar abiertos y cerrados (vacias)
+     * 2. Origen --> abiertos
+     * 3. Mientras ( abiertos.noVacio() )
+     *  3.1 nodo_actual = abiertos.pop()
+     *  3.2 expandir nodos adyacentes a nodo actual (solo transitables)
+     *  3.3 cerrados.add(nodo_actual)
+     *  3.4 nodo_actual = min(nodos expandidos)
+     *  3.5 if (nodo_actual == objetivo)
+     *          encontrado = true
+     * 
+     * Si sale del bucle (abiertos esta vacio) y encontrado == false:
+     *      no hay camino
+     * 
+     * Para la reconstruccion del camino:
+     *      cerrados (?)
      */
-    private void calcularPlan(){
+    private void calcularPlan() {
+        boolean encontrado = false;
+        Nodo nodo_actual = new Nodo();
         abiertos.clear();
         cerrados.clear();
         
         abiertos.add(origen);
         
-//        for()
+        // !encontrado && 
+        while(!abiertos.isEmpty()) {
+            nodo_actual = abiertos.remove();
+            int index = mapa.indexOf(nodo_actual);
+            
+            cerrados.add(nodo_actual);
+            
+            for(int i=0; i<8; i++) {
+                // Expandir nodos adyacentes (8)
+                // Si el nodo es no transitable, ignorar
+                // Para los nodos transitables, calcular f
+                // nodo_actual = min(nodos transitables)
+            }
+            
+        }
     }
 
     
