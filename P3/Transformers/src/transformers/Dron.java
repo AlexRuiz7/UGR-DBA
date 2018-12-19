@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package transformers;
 
 import es.upv.dsic.gti_ia.core.AgentID;
@@ -13,6 +8,15 @@ import es.upv.dsic.gti_ia.core.AgentID;
  */
 public class Dron extends Vehiculo{
     
+    
+    /**
+     * 
+     * @param aID
+     * @param id_servidor
+     * @param id_burocrata
+     * @param informa
+     * @throws Exception 
+     */
     public Dron(AgentID aID, AgentID id_servidor, AgentID id_burocrata, boolean informa) throws Exception {
         super(aID, id_servidor, id_burocrata, informa);
     }
