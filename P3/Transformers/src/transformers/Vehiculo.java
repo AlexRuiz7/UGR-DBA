@@ -386,12 +386,6 @@ public class Vehiculo extends Agente {
         
 // Cierre del while
         }
-/**
- * SI el vehículo no recibe la confirmación del burócrata este no puede
- *  seguir
- */ 
-//        System.out.println("\n ERROR performativa inesperada: "+ print(mensajeEntrada));
-
     }
     
     
@@ -509,8 +503,11 @@ public class Vehiculo extends Agente {
     
     
     /**
+     * @author: Germán
+     *  Método que encapsula la comunicación con el burócrata cuando el vehículo
+     *   ha recibido previamente la información de los sensores.
+     * @return Devuelve si se ha realizado la comunicación con éxito.
      * 
-     * @return 
      */
     private boolean enviar_percepciones(){
         boolean resultado;
@@ -561,11 +558,38 @@ public class Vehiculo extends Agente {
     }
    
     
-    
+    /**************************************************************************/
+    /**
+     * @Reflexión
+     * Conductas de exploración.
+     * Cuando un vehíco se mueve éste descubre nuevas casillas,
+     *  pero hay movimientos en donde se descubre más.
+     *  Moverse en diagonal proporciona más información que moverse
+     *  de forma lineal, como el consumo es el mismo para ambas decisiones
+     *  creemos conveniente priorizar los movimiento en diagonal que lineal.
+     *   ¿Cómo hacerlo ? Una forma sería ordenar la información en la toda 
+     *  de decisiones siendo los primeros elementos los movimientos en diagonal.
+     * 
+     *  Para decidir el lugar a donde irá el vehículo, inicialmente 
+     *   hemos pensado en realizar un conteo de casillas libres, condicionando
+     *   al agente a decidir como movimiento más prometedor
+     *   aquél de menor valor.
+     * 
+     *  ¿Cómo es es conteo? He decidido sumar el valor de cada casilla,
+     *     0] libre
+     *     1] obstáculo (solo para coche y camión)
+     *     2] muro (obtáculo incluso para el dron)
+     *     3] destino
+     *     4] Agente
+     *     
+     *  
+     *   
+     */
     /**
      * 
      */
     protected void explorar() {}
+    /**************************************************************************/
     
     
     /*************************************************************************/
@@ -619,7 +643,7 @@ public class Vehiculo extends Agente {
     
     
     /**
-     * 
+     * @author: Alvaro
      * @return 
      */
     private boolean refuel() {
