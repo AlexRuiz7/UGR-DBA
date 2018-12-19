@@ -355,8 +355,22 @@ public class Vehiculo extends Agente {
         recibirMensaje();
         
         if(performativa != ACLMessage.INFORM)
-            while(true)
+            while(true){
+                System.out.println(
+                        "\n ESTOY FUERA DE JUEGO "
+                        +"["+this.getAid().getLocalName()+"]"
+                        + " y NO DEBO RECIBIR MENSAJES \n");
                 recibirMensaje();
+                System.out.println(
+                        "\n ESTOY FUERA DE JUEGO "
+                        +"["+this.getAid().getLocalName()+"]"
+                        + " Mensaje recibido de "
+                        + mensajeEntrada.getSender().getLocalName()
+                        + " cuyo mensaje es: "+ print(mensajeEntrada)
+                        +"\n"
+                );
+            }
+        
         
 //        performativa_adecuada = mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM;
 //        performativa_adecuada = mensaje.get("result").asString().contains("OK");
@@ -424,8 +438,8 @@ public class Vehiculo extends Agente {
                     System.out.println(" Aceptada petición de CHECKIN ");
                     JsonObject capabilities = mensaje.get("capabilities").asObject();
                     rango = capabilities.get("range").asInt();
-                    consumo = capabilities.get("consumo").asInt();
-                    vuelo = capabilities.get("vuelo").asBoolean();
+                    consumo = capabilities.get("fuelrate").asInt();
+                    vuelo = capabilities.get("fly").asBoolean();
                     resultado = true ;
                     break;
 
