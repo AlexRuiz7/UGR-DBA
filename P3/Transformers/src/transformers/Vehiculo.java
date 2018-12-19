@@ -226,7 +226,8 @@ public class Vehiculo extends Agente {
                 System.out.println(" Mensaje no esperado: " + print(mensajeEntrada));
         }
 
-        while(performativa_adecuada){
+        boolean cancel = false;
+        while(!cancel){
             
             pedir_percepciones();
             
@@ -353,14 +354,18 @@ public class Vehiculo extends Agente {
          * Esperando respuesta del burócrata para proseguir.
          */
         recibirMensaje();
-        
+            System.out.println("MENSAJE de la última fase "+ print(mensajeEntrada));
+        cancel = mensajeEntrada.getPerformativeInt() == ACLMessage.CANCEL;
+/*        
         if(performativa != ACLMessage.INFORM)
-            while(true){
+            while(cancel){
                 System.out.println(
                         "\n ESTOY FUERA DE JUEGO "
                         +"["+this.getAid().getLocalName()+"]"
                         + " y NO DEBO RECIBIR MENSAJES \n");
                 recibirMensaje();
+                if(mensaje.get("cancel").asString().contains("cancel"))
+                    cancel = mensajeEntrada.getPerformativeInt() == ACLMessage.CANCEL;
                 System.out.println(
                         "\n ESTOY FUERA DE JUEGO "
                         +"["+this.getAid().getLocalName()+"]"
@@ -370,10 +375,9 @@ public class Vehiculo extends Agente {
                         +"\n"
                 );
             }
+*/        
         
-        
-//        performativa_adecuada = mensajeEntrada.getPerformativeInt() == ACLMessage.INFORM;
-//        performativa_adecuada = mensaje.get("result").asString().contains("OK");
+// Cierre del while
         }
 /**
  * SI el vehículo no recibe la confirmación del burócrata este no puede
