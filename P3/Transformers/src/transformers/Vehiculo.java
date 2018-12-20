@@ -520,7 +520,7 @@ public class Vehiculo extends Agente {
          * @IMPORTANTE decidir en este momento el movimiento a realizar ahora.
          */
         mensaje.add("estado", estado);
-        mensaje.add("refuel", false);
+//        mensaje.add("refuel", false);
         
         int performativa = mensajeEntrada.getPerformativeInt();
         resultado = performativa == ACLMessage.INFORM;
@@ -543,7 +543,7 @@ public class Vehiculo extends Agente {
         
         // Esperando respuesta del burócrata
            recibirMensaje();
-        
+
            if(informa)
             System.out.println(
                 " ["+ this.getAid().getLocalName() + "]"
@@ -558,7 +558,7 @@ public class Vehiculo extends Agente {
     }
    
     
-    /**************************************************************************/
+/*** COMPORTAMIENTO BASICO ****************************************************/
     /**
      * @Reflexión
      * Conductas de exploración.
@@ -575,20 +575,32 @@ public class Vehiculo extends Agente {
      *   al agente a decidir como movimiento más prometedor
      *   aquél de menor valor.
      * 
-     *  ¿Cómo es es conteo? He decidido sumar el valor de cada casilla,
+     *  ¿Cómo es el conteo? He decidido sumar el valor de cada casilla,
      *     0] libre
      *     1] obstáculo (solo para coche y camión)
      *     2] muro (obtáculo incluso para el dron)
      *     3] destino
-     *     4] Agente
-     *     
+     *     4] agente
+     * 
+     *  @Nota: El valor rompe con la idea,
+     *  ¿Cómo solventarlo? Sustituyendo dicho valor por un valor negativo
+     *  ya sea -3 o el valor negativo más pequeño. (Alejandro sugiere -8)
+     *  
+     *  ¿Qué criterio se usa para asignar dicho valor?
+     *   Cada movimiento tiene asociado un cuadrante
+     *   Cada cuadrante tiene asociado la misma cantidad de casillas,
+     *    lo que provoca solapamiento en la información.
+     *    No le veo inicialemente ningún problema, pero puede serlo.
+     * 
+     *   @Nota: Todo el comportamiento se encapsula en la clase comportamiento.
      *  
      *   
      */
-    /**
-     * 
-     */
-    protected void explorar() {}
+     Comportamiento comportamiento = new Comportamiento(informa);
+     
+ 
+    
+
     /**************************************************************************/
     
     
