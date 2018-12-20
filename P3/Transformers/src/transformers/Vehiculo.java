@@ -28,6 +28,9 @@ public class Vehiculo extends Agente {
     protected boolean ayuda;
     protected boolean refuel;
     protected int estado;
+    protected Comportamiento comportamiento;
+    protected JsonArray sensor;
+    protected String accion;
     
     // Lista para almacenar los vehiculos detectados en el radar
     protected ArrayList<Casilla> camaradas;
@@ -117,6 +120,9 @@ public class Vehiculo extends Agente {
          * 3] NO tengo energía para continuar, 4] CRACHEADO
          */ 
         estado = 0;
+        comportamiento = new Comportamiento(informa);
+        accion = "";
+        sensor = new JsonArray();
         
         
         camaradas = new ArrayList();
@@ -329,10 +335,15 @@ public class Vehiculo extends Agente {
          */
         
        
-        System.out.println(" [" + this.getAid().getLocalName() +"]"
-                +" He decidido moverme al NORTE ");
+        
         mensaje = new JsonObject();
-        mensaje.add("command", "moveN");
+        
+//        accion = "moveE";
+        accion = comportamiento.explorar(sensor);
+           System.out.println(" [" + this.getAid().getLocalName() +"]"
+                +" He decidido moverme a: " + accion);
+           
+        mensaje.add("command", accion);
         enviarMensaje(id_servidor, ACLMessage.REQUEST, conversationID, replyWith);
         
         recibirMensaje();
@@ -490,6 +501,13 @@ public class Vehiculo extends Agente {
         if(informa) print(mensajeEntrada);
         if(mensajeEntrada.getPerformativeInt() != ACLMessage.INFORM)
             estado = 4;
+        else{
+            sensor = mensaje.get("result").asObject().get("sensor").asArray();
+            System.out.println("["+this.getAid().getLocalName()+"]"
+              +" PERCEPCIONES GUARDADAS: "
+              + sensor.toString());
+            
+        }
         
         if(informa)
             System.out.println("["
@@ -596,7 +614,6 @@ public class Vehiculo extends Agente {
      *  
      *   
      */
-     Comportamiento comportamiento = new Comportamiento(informa);
      
  
     
