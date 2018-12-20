@@ -243,57 +243,57 @@ public class PathFinder {
      * TEST
      * 
      **************************************************************************/
-    public static void main(String args[]) {
-        ArrayList<Casilla> map = new ArrayList();
-        Casilla origen = new Casilla(0,0);
-        Casilla destino = new Casilla(0,0);
-        int tam = 50;
-        
-        for(int x=0; x<tam; x++) {
-            for (int y=0; y<tam; y++) {
-                // Insercion de bordes
-                if( (x==0) || (y==0) )
-                    map.add(new Casilla(x,y,'B'));
-                else if( (x==(tam-1)) || (y==(tam-1)) )
-                    map.add(new Casilla(x,y,'B'));
-                // Insercion de muros
-                else if( (x==2) && (y>1) )
-                    map.add(new Casilla(x,y,'M'));
-                else if( (x==(tam-4)) && (y<(tam-2)) )
-                    map.add(new Casilla(x,y,'M'));
-                // Insercion de objetivo
-                else if( (x==tam-2) && (y==2) ) {
-                    destino = new Casilla(x,y,'X');
-                    map.add(destino);
-                }
-                // Insercion de origen
-                else if( (x==1) && (y==tam-2) ) {
-                    origen = new Casilla(x,y,'S');
-                    map.add(origen);
-                }
-                else
-                    map.add(new Casilla(x,y,' '));
-            }
-        }
-        
-        PathFinder pf = new PathFinder();
-        pf.setOrigen(origen);
-        pf.setDestino(destino);
-        pf.setMapa(map);
-        pf.start();
-        Stack<Nodo> n = pf.getCamino();
-        
-//        pf.getMapaF();
-        
-        for (Nodo a : n) {
-            map.set(a.X*tam+a.Y, new Casilla(a.X, a.Y, '*'));
-        }
-        
-        for(int x=0; x<tam; x++){
-            for(int y=0; y<tam; y++)
-                System.out.print(" " + map.get(x*tam+y).getTipo() + " ");
-                
-            System.out.println("");
-        }
-    }
+//    public static void main(String args[]) {
+//        ArrayList<Casilla> map = new ArrayList();
+//        Casilla origen = new Casilla(0,0);
+//        Casilla destino = new Casilla(0,0);
+//        int tam = 50;
+//        
+//        for(int x=0; x<tam; x++) {
+//            for (int y=0; y<tam; y++) {
+//                // Insercion de bordes
+//                if( (x==0) || (y==0) )
+//                    map.add(new Casilla(x,y,'B'));
+//                else if( (x==(tam-1)) || (y==(tam-1)) )
+//                    map.add(new Casilla(x,y,'B'));
+//                // Insercion de muros
+//                else if( (x==2) && (y>1) )
+//                    map.add(new Casilla(x,y,'M'));
+//                else if( (x==(tam-4)) && (y<(tam-2)) )
+//                    map.add(new Casilla(x,y,'M'));
+//                // Insercion de objetivo
+//                else if( (x==tam-2) && (y==2) ) {
+//                    destino = new Casilla(x,y,'X');
+//                    map.add(destino);
+//                }
+//                // Insercion de origen
+//                else if( (x==1) && (y==tam-2) ) {
+//                    origen = new Casilla(x,y,'S');
+//                    map.add(origen);
+//                }
+//                else
+//                    map.add(new Casilla(x,y,' '));
+//            }
+//        }
+//        
+//        PathFinder pf = new PathFinder();
+//        pf.setOrigen(origen);
+//        pf.setDestino(destino);
+//        pf.setMapa(map);
+//        pf.start();
+//        Stack<Nodo> n = pf.getCamino();
+//        
+////        pf.getMapaF();
+//        
+//        for (Nodo a : n) {
+//            map.set(a.X*tam+a.Y, new Casilla(a.X, a.Y, '*'));
+//        }
+//        
+//        for(int x=0; x<tam; x++){
+//            for(int y=0; y<tam; y++)
+//                System.out.print(" " + map.get(x*tam+y).getTipo() + " ");
+//                
+//            System.out.println("");
+//        }
+//    }
 }

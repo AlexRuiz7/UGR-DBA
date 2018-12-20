@@ -383,9 +383,7 @@ public class Vehiculo extends Agente {
                 );
             }
 */        
-        
-// Cierre del while
-        }
+        } // Cierre del while
     }
     
     
