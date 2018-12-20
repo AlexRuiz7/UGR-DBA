@@ -27,11 +27,11 @@ public class Transformers {
             
             
             // Creando agentID para los agentes
-            AgentID id_burocrata = new AgentID("Optimus_Prime000");
-            AgentID id_v1 = new AgentID("vehiculo000");
-            AgentID id_v2 = new AgentID("vehiculo111");
-            AgentID id_v3 = new AgentID("vehiculo222");
-            AgentID id_v4 = new AgentID("vehiculo333");
+            AgentID id_burocrata = new AgentID("Optimus_Prime00000");
+            AgentID id_v1 = new AgentID("vehiculo00000");
+            AgentID id_v2 = new AgentID("vehiculo11111");
+            AgentID id_v3 = new AgentID("vehiculo22222");
+            AgentID id_v4 = new AgentID("vehiculo33333");
             
             ArrayList<AgentID> vehiculos = new ArrayList<>();
             vehiculos.add(id_v1);
