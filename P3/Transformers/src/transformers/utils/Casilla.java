@@ -26,6 +26,8 @@ package transformers.utils;
  * 
  * 
  * @author Alejandro
+ *
+ * Para la practica 3 se han implementado los siguientes cambios:
  * 
  *  - Añadido atributo de tipo char para representar la naturaleza de la casilla:
  *      - L --> Libre
@@ -38,9 +40,8 @@ package transformers.utils;
 public class Casilla {
     public final int X;
     public final int Y;
-
     private      int contador;
-    private      char topografia;
+    private final char topografia;
     
    
     
@@ -60,6 +61,7 @@ public class Casilla {
         X = coord_X;
         Y = coord_Y;
         contador = 0;
+        topografia = '?';
     }
     
     
@@ -115,6 +117,6 @@ public class Casilla {
      */
     @Override
     public String toString(){
-        return "[X,Y,#] : " + X + "," + Y + "," + contador;
+        return "[X,Y,#] : " + X + "," + Y;
     }
 }
