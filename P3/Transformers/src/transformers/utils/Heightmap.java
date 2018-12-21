@@ -21,6 +21,17 @@ public class Heightmap extends Casilla {
     
     /**
      * 
+     * @param c 
+     * @param a 
+     */
+    public Heightmap(Casilla c, int a) {
+        super(c.X, c.Y);
+        altura = a;
+    }
+    
+    
+    /**
+     * 
      * @param alt 
      */
     public void setAltura(int alt) {
